@@ -18,12 +18,12 @@
             --bg-inner: #ffffff;
             --border-color: rgba(15, 23, 42, 0.08);
             --text-main: #0f172a;
-            --text-muted: #64748b;
+            --text-muted: #475569;
             --glow-strength: 0.02;
             --card-hover: rgba(99, 102, 241, 0.05);
             --alert-bg: #ecfeff;
             --alert-border: #cffafe;
-            --alert-text: #0891b2;
+            --alert-text: #155e75;
             --tab-bg: rgba(15, 23, 42, 0.04);
         }
 
@@ -87,8 +87,8 @@
 
         .shooting-star {
             position: absolute;
-            width: 80px;
-            height: 1.5px;
+            width: 105px;
+            height: 2px;
             background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0));
             animation: shoot 5s linear infinite;
             transform: rotate(-45deg);
@@ -161,6 +161,12 @@
             <div class="shooting-star" style="top: 40%; right: 15%; animation-delay: 3s; animation-duration: 5s;"></div>
             <div class="shooting-star" style="top: 55%; right: 35%; animation-delay: 0.5s; animation-duration: 3.5s;"></div>
             <div class="shooting-star" style="top: 5%; right: 50%; animation-delay: 2.2s; animation-duration: 5.5s;"></div>
+            <!-- Extra shooting stars for richer background effect -->
+            <div class="shooting-star" style="top: 15%; right: 70%; animation-delay: 1s; animation-duration: 3.8s;"></div>
+            <div class="shooting-star" style="top: 30%; right: 10%; animation-delay: 2.5s; animation-duration: 4.2s;"></div>
+            <div class="shooting-star" style="top: 50%; right: 60%; animation-delay: 0.8s; animation-duration: 4.8s;"></div>
+            <div class="shooting-star" style="top: 70%; right: 20%; animation-delay: 3.4s; animation-duration: 3.6s;"></div>
+            <div class="shooting-star" style="top: 80%; right: 45%; animation-delay: 1.9s; animation-duration: 5.2s;"></div>
         </div>
 
         <div class="relative w-40 h-40 mb-8 flex items-center justify-center z-10">
@@ -193,7 +199,7 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-950 to-slate-800 dark:from-white dark:to-indigo-100">UHV Portal</h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Syllabus Directory & Continuous Assessment System</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Syllabus Directory & Continuous Assessment System</p>
                 </div>
             </div>
 
@@ -205,14 +211,14 @@
                         <i data-lucide="check-square" class="w-4 h-4"></i>
                         Interactive Quizzes
                     </button>
-                    <button onclick="switchTab('summary')" id="tab-btn-summary" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white">
+                    <button onclick="switchTab('summary')" id="tab-btn-summary" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white">
                         <i data-lucide="book-marked" class="w-4 h-4"></i>
                         Syllabus Summary
                     </button>
                 </nav>
 
                 <!-- Light/Dark Switch Toggle Circular Button -->
-                <button onclick="toggleTheme()" class="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm text-slate-500 dark:text-yellow-400 hover:scale-105 transition-all duration-200" title="Switch Theme">
+                <button onclick="toggleTheme()" class="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm text-slate-600 dark:text-yellow-400 hover:scale-105 transition-all duration-200" title="Switch Theme">
                     <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -227,7 +233,7 @@
             </div>
             <div>
                 <h4 class="font-bold text-xs sm:text-sm" style="color: var(--alert-text);">Preparation Advisory</h4>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed">
                     For optimal academic evaluation accuracy, we strongly suggest you first complete and read the items in the <strong class="text-indigo-600 dark:text-white font-semibold">Syllabus Summary</strong> tab before initiating your Module assessments.
                 </p>
             </div>
@@ -242,8 +248,8 @@
             <!-- Pill Navigation for Quiz Modules -->
             <div class="flex gap-2 p-1 rounded-xl w-fit max-w-full" style="background: var(--tab-bg); border: 1px solid var(--border-color);">
                 <button onclick="selectQuizModule(1)" id="quiz-mod-1" class="px-4 py-2 rounded-lg text-xs font-bold transition-all bg-indigo-600 text-white">Module 1</button>
-                <button onclick="selectQuizModule(2)" id="quiz-mod-2" class="px-4 py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-indigo-600 dark:hover:text-white">Module 2</button>
-                <button onclick="selectQuizModule(3)" id="quiz-mod-3" class="px-4 py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-indigo-600 dark:hover:text-white">Module 3</button>
+                <button onclick="selectQuizModule(2)" id="quiz-mod-2" class="px-4 py-2 rounded-lg text-xs font-bold transition-all text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white">Module 2</button>
+                <button onclick="selectQuizModule(3)" id="quiz-mod-3" class="px-4 py-2 rounded-lg text-xs font-bold transition-all text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white">Module 3</button>
             </div>
 
             <!-- Quiz Layout Panel Card -->
@@ -253,7 +259,7 @@
                 <div id="quiz-active-view">
                     <div class="flex justify-between items-center mb-6">
                         <span id="quiz-module-badge" class="bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 font-bold text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full border border-indigo-500/20">Module 1 Evaluation</span>
-                        <div class="text-slate-400 text-xs">
+                        <div class="text-slate-600 dark:text-slate-400 text-xs">
                             Assessed Card <span id="current-q-num" class="text-indigo-600 dark:text-white font-bold">1</span> of <span id="total-q-num">30</span>
                         </div>
                     </div>
@@ -297,16 +303,16 @@
                         <i data-lucide="award" class="w-10 h-10"></i>
                     </div>
                     <h2 class="text-2xl font-extrabold mb-2">Module Evaluation Complete!</h2>
-                    <p id="result-module-title" class="text-slate-400 text-xs mb-8">Module assessment metrics completed.</p>
+                    <p id="result-module-title" class="text-slate-600 dark:text-slate-400 text-xs mb-8">Module assessment metrics completed.</p>
 
                     <!-- Score Card Grid -->
                     <div class="grid grid-cols-2 gap-4 mb-8">
                         <div class="themed-card p-5 rounded-2xl">
-                            <span class="block text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-1">Calculated Score</span>
+                            <span class="block text-slate-600 dark:text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-1">Calculated Score</span>
                             <span class="text-2xl font-extrabold"><span id="result-score-current">0</span>/<span id="result-score-total">30</span></span>
                         </div>
                         <div class="themed-card p-5 rounded-2xl">
-                            <span class="block text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-1">Accuracy Factor</span>
+                            <span class="block text-slate-600 dark:text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-1">Accuracy Factor</span>
                             <span id="result-accuracy" class="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">0%</span>
                         </div>
                     </div>
@@ -338,7 +344,7 @@
                             <i data-lucide="book-open" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></i>
                         </div>
                         <h3 class="text-lg font-bold mb-2">Foundations of Value Education</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">Understanding value proposals, continuous happiness metrics, the self-exploration cycle, and the distinction between natural acceptance and preconditioning.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">Understanding value proposals, continuous happiness metrics, the self-exploration cycle, and the distinction between natural acceptance and preconditioning.</p>
                     </div>
                     <div class="space-y-3 border-t border-slate-200 dark:border-white/5 pt-4" id="m1-summary-topics"></div>
                 </div>
@@ -351,7 +357,7 @@
                             <i data-lucide="users" class="w-5 h-5 text-cyan-600 dark:text-cyan-400"></i>
                         </div>
                         <h3 class="text-lg font-bold mb-2">Harmony in Life & Relationships</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">Evaluating co-existence of Self ('I') and Body, foundational relationship parameters (Trust & Respect), and extending harmony to universal orders.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">Evaluating co-existence of Self ('I') and Body, foundational relationship parameters (Trust & Respect), and extending harmony to universal orders.</p>
                     </div>
                     <div class="space-y-3 border-t border-slate-200 dark:border-white/5 pt-4" id="m2-summary-topics"></div>
                 </div>
@@ -364,7 +370,7 @@
                             <i data-lucide="globe" class="w-5 h-5 text-purple-600 dark:text-purple-400"></i>
                         </div>
                         <h3 class="text-lg font-bold mb-2">Harmony in Nature & Ethics</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">Deconstructing interactions within the four natural orders, existence as space submergence, human goals, and value-based professional ethics.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">Deconstructing interactions within the four natural orders, existence as space submergence, human goals, and value-based professional ethics.</p>
                     </div>
                     <div class="space-y-3 border-t border-slate-200 dark:border-white/5 pt-4" id="m3-summary-topics"></div>
                 </div>
@@ -374,7 +380,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="themed-panel text-slate-500 py-6 border-t border-slate-200 dark:border-white/5 text-center text-xs">
+    <footer class="themed-panel text-slate-600 dark:text-slate-400 py-6 border-t border-slate-200 dark:border-white/5 text-center text-xs">
         <p>&copy; 2026 Universal Human Values Study Center. Evaluated alignment with AI Studio parameters.</p>
     </footer>
 
@@ -642,11 +648,11 @@
                 secSummary.classList.remove("hidden");
                 secQuiz.classList.add("hidden");
                 btnSummary.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-indigo-600 text-white shadow-lg shadow-indigo-600/20";
-                btnQuiz.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white";
+                btnQuiz.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white";
             } else {
                 secSummary.classList.add("hidden");
                 secQuiz.classList.remove("hidden");
-                btnSummary.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white";
+                btnSummary.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white";
                 btnQuiz.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-indigo-600 text-white shadow-lg shadow-indigo-600/20";
             }
         }
@@ -664,12 +670,12 @@
 
                     // The topic trigger button
                     const btn = document.createElement("button");
-                    btn.className = "w-full text-left px-4 py-3 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-800 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white text-xs font-bold transition flex items-center justify-between group focus:outline-none";
+                    btn.className = "w-full text-left px-4 py-3 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-800 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-white text-xs font-bold transition flex items-center justify-between group focus:outline-none gap-2";
                     btn.onclick = () => toggleAccordion(modNum, idx);
                     btn.id = `acc-btn-${modNum}-${idx}`;
                     btn.innerHTML = `
-                        <span class="truncate pr-4">${idx + 1}. ${topic.title}</span>
-                        <i id="acc-icon-${modNum}-${idx}" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-white transition-transform duration-300 shrink-0"></i>
+                        <span class="flex-1 text-left whitespace-normal break-words pr-2">${idx + 1}. ${topic.title}</span>
+                        <i id="acc-icon-${modNum}-${idx}" data-lucide="chevron-down" class="w-4 h-4 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-white transition-transform duration-300 shrink-0"></i>
                     `;
 
                     // The dropdown expansion description box
@@ -677,7 +683,7 @@
                     descContainer.id = `acc-content-${modNum}-${idx}`;
                     descContainer.className = "accordion-content border-t border-slate-200 dark:border-white/5 bg-slate-900/[0.01] dark:bg-black/20";
                     descContainer.innerHTML = `
-                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed p-4 font-medium">${topic.desc}</p>
+                        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed p-4 font-medium">${topic.desc}</p>
                     `;
 
                     accordionContainer.appendChild(btn);
@@ -729,7 +735,7 @@
                 if (num === moduleNum) {
                     pill.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all bg-indigo-600 text-white shadow";
                 } else {
-                    pill.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-indigo-600 dark:hover:text-white";
+                    pill.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white";
                 }
             });
 
@@ -768,12 +774,12 @@
 
             qData.options.forEach((opt, idx) => {
                 const button = document.createElement("button");
-                button.className = "text-left p-5 rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-200 dark:border-white/5 hover:border-indigo-500/40 hover:bg-slate-900/10 dark:hover:bg-white/10 font-bold text-xs text-slate-800 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition duration-200 focus:outline-none flex gap-4 items-start";
+                button.className = "text-left p-5 rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-200 dark:border-white/5 hover:border-indigo-500/40 hover:bg-slate-900/10 dark:hover:bg-white/10 font-bold text-xs text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition duration-200 focus:outline-none flex gap-4 items-start";
                 button.onclick = () => selectQuizOption(idx);
                 
                 const label = String.fromCharCode(65 + idx);
                 button.innerHTML = `
-                    <span class="w-6 h-6 rounded-lg bg-slate-900/10 dark:bg-white/10 flex items-center justify-center text-xs text-slate-500 dark:text-slate-300 font-bold shrink-0">${label}</span>
+                    <span class="w-6 h-6 rounded-lg bg-slate-900/10 dark:bg-white/10 flex items-center justify-center text-xs text-slate-600 dark:text-slate-300 font-bold shrink-0">${label}</span>
                     <span class="leading-relaxed">${opt}</span>
                 `;
                 optionsGrid.appendChild(button);
@@ -805,7 +811,7 @@
                     btn.className = "text-left p-5 rounded-2xl border-2 border-rose-500 bg-rose-500/10 font-bold text-xs text-slate-800 dark:text-white flex gap-4 items-start";
                     labelSpan.className = "w-6 h-6 rounded-lg bg-rose-500 flex items-center justify-center text-xs text-white font-bold shrink-0";
                 } else {
-                    btn.className = "text-left p-5 rounded-2xl border border-slate-200 dark:border-white/5 opacity-40 font-bold text-xs text-slate-400 flex gap-4 items-start";
+                    btn.className = "text-left p-5 rounded-2xl border border-slate-200 dark:border-white/5 opacity-40 font-bold text-xs text-slate-500 dark:text-slate-400 flex gap-4 items-start";
                 }
             }
 
@@ -819,15 +825,15 @@
             text.innerText = qData.exp;
 
             if (isCorrect) {
-                dialog.className = "mb-8 p-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 transition-all duration-300 animate-slide-up";
+                dialog.className = "mb-8 p-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 transition-all duration-300 animate-slide-up";
                 iconContainer.className = "p-1.5 rounded-full bg-emerald-500 text-white shrink-0 flex items-center justify-center";
                 iconContainer.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i>`;
-                title.innerText = "Correct Verification!";
+                title.innerText = "Correct Answer!";
             } else {
-                dialog.className = "mb-8 p-5 rounded-2xl border border-rose-500/20 bg-rose-500/10 text-rose-700 dark:text-rose-300 transition-all duration-300 animate-slide-up";
+                dialog.className = "mb-8 p-5 rounded-2xl border border-rose-500/20 bg-rose-500/10 text-rose-800 dark:text-rose-300 transition-all duration-300 animate-slide-up";
                 iconContainer.className = "p-1.5 rounded-full bg-rose-500 text-white shrink-0 flex items-center justify-center";
                 iconContainer.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4"></i>`;
-                title.innerText = "Incorrect Verification";
+                title.innerText = "Incorrect Answer";
             }
 
             lucide.createIcons();
