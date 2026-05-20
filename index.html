@@ -3,882 +3,891 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BPUT UHV Exam Solutions & Study Guide</title>
+    <title>UHV Interactive Portal - Syllabus & Assessments</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Chosen Palette: Warm Neutrals (Slate-50 to Slate-800) with Indigo-600 accents for a calm, academic feel. -->
-    <!-- Application Structure Plan: The SPA is designed as an Interactive Study Dashboard. It features an analytical header showing topic weightage to guide study focus, followed by an interactive, filterable accordion list of 52 questions completely matched to the BPUT marking scheme (2, 6, and 16 marks). This structure promotes active recall while allowing seamless exploration. An explicit print stylesheet is included to fulfill the user's request for a final PDF output while adhering to the SPA constraints. -->
-    <!-- Visualization & Content Choices: 
-         1. Topic Weightage -> Goal: Inform/Organize -> Viz Method: Doughnut Chart (Chart.js) -> Justification: Quickly communicates the most important modules to study. 
-         2. Marks Distribution -> Goal: Compare -> Viz Method: Bar Chart (Chart.js) -> Justification: Shows the balance between objective and subjective questions.
-         3. Q&A Explorer -> Goal: Inform/Interact -> Viz Method: Filterable Accordion (HTML/JS) -> Justification: Best for reading heavy textual content across the exact 52 questions mapped to 2, 6, and 16 marks.
-         Library/Method: Chart.js and Vanilla JS. Confirming NO SVG/Mermaid used. 
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 35vh;
-            max-height: 350px;
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        /* CSS Variables Supporting Seamless Theme Toggling */
+        :root {
+            --bg-main: #f8fafc;
+            --bg-panel: rgba(255, 255, 255, 0.85);
+            --bg-inner: #ffffff;
+            --border-color: rgba(15, 23, 42, 0.08);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --glow-strength: 0.02;
+            --card-hover: rgba(99, 102, 241, 0.05);
+            --alert-bg: #ecfeff;
+            --alert-border: #cffafe;
+            --alert-text: #0891b2;
+            --tab-bg: rgba(15, 23, 42, 0.04);
         }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        .answer-content {
-            display: none;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        .answer-content.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
+        body.dark-mode {
+            --bg-main: #020617;
+            --bg-panel: rgba(15, 23, 42, 0.5);
+            --bg-inner: rgba(15, 23, 42, 0.65);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glow-strength: 0.2;
+            --card-hover: rgba(255, 255, 255, 0.04);
+            --alert-bg: rgba(6, 182, 212, 0.1);
+            --alert-border: rgba(6, 182, 212, 0.25);
+            --alert-text: #22d3ee;
+            --tab-bg: rgba(255, 255, 255, 0.05);
         }
 
-        .highlight-keyword {
-            background-color: #fef08a;
-            font-weight: 600;
-            padding: 0 4px;
-            border-radius: 2px;
-            transition: background-color 0.3s;
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        @media print {
-            body { background-color: #ffffff; color: #000000; }
-            .no-print { display: none !important; }
-            .print-break-inside-avoid { page-break-inside: avoid; }
-            .print-break-before { page-break-before: always; }
-            .answer-content { display: block !important; opacity: 1 !important; transform: none !important; }
-            .chart-container { height: 250px; max-height: 250px; }
-            #dashboard-grid { display: block; }
-            #dashboard-grid > div { margin-bottom: 2rem; page-break-inside: avoid; }
-            .shadow-sm, .shadow-md { box-shadow: none !important; border: 1px solid #e2e8f0; }
-            .bg-slate-50 { background-color: #ffffff !important; }
-            h1, h2, h3 { color: #000000 !important; }
-            .accordion-icon { display: none !important; }
-            .question-card { margin-bottom: 1.5rem; border-bottom: 2px solid #cbd5e1; padding-bottom: 1rem; }
+        /* Themed Glass Components */
+        .themed-panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, var(--glow-strength));
+            transition: all 0.3s ease;
+        }
+
+        .themed-card {
+            background: var(--bg-inner);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        /* Shooting Stars Animation inside Loader Background */
+        @keyframes shoot {
+            0% {
+                transform: translate(0, 0) rotate(-45deg) scale(0);
+                opacity: 0;
+            }
+            4% {
+                opacity: 1;
+                transform: translate(-100px, 100px) rotate(-45deg) scale(1);
+            }
+            20% {
+                transform: translate(-500px, 500px) rotate(-45deg) scale(1);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-800px, 800px) rotate(-45deg) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .shooting-star {
+            position: absolute;
+            width: 80px;
+            height: 1.5px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0));
+            animation: shoot 5s linear infinite;
+            transform: rotate(-45deg);
+            opacity: 0;
+        }
+
+        /* Intro Loader Animations */
+        @keyframes rotateOuter {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes rotateInner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+        .animate-rotate-outer {
+            animation: rotateOuter 8s linear infinite;
+        }
+        .animate-rotate-inner {
+            animation: rotateInner 6s linear infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 0.15; }
+            50% { transform: scale(1.1); opacity: 0.3; }
+        }
+        .animate-pulse-glow {
+            animation: pulseGlow 4s ease-in-out infinite;
+        }
+
+        /* CSS-driven smooth height transition for Accordion */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+        .accordion-content.active {
+            max-height: 300px; /* Generous height for expanded content */
+            opacity: 1;
+        }
+
+        /* Custom scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(120, 120, 120, 0.2);
+            border-radius: 4px;
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden relative">
 
-    <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50 print:relative print:shadow-none print:text-black print:bg-white print:border-b-2 print:border-black">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight">&#128218; BPUT UHV Solutions Guide</h1>
-                <p class="text-indigo-200 text-sm mt-1 print:text-gray-600">Universal Human Values (23HS1001) - 2024 & 2025</p>
+    <!-- Ambient Glow Backdrops (Dark Mode Only) -->
+    <div class="fixed inset-0 -z-50 bg-slate-950 overflow-hidden hidden dark-mode:block">
+        <div class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-600/10 blur-[120px] animate-pulse-glow"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-cyan-600/10 blur-[120px] animate-pulse-glow" style="animation-delay: 2s;"></div>
+    </div>
+
+    <!-- Smooth 5-Second Intro Loading Overlay with Shooting Stars -->
+    <div id="intro-loader" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-6 transition-all duration-700">
+        <!-- Shooting Stars Background Space -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="shooting-star" style="top: 10%; right: 5%; animation-delay: 0s; animation-duration: 4s;"></div>
+            <div class="shooting-star" style="top: 25%; right: 25%; animation-delay: 1.5s; animation-duration: 4.5s;"></div>
+            <div class="shooting-star" style="top: 40%; right: 15%; animation-delay: 3s; animation-duration: 5s;"></div>
+            <div class="shooting-star" style="top: 55%; right: 35%; animation-delay: 0.5s; animation-duration: 3.5s;"></div>
+            <div class="shooting-star" style="top: 5%; right: 50%; animation-delay: 2.2s; animation-duration: 5.5s;"></div>
+        </div>
+
+        <div class="relative w-40 h-40 mb-8 flex items-center justify-center z-10">
+            <div class="absolute inset-0 border-2 border-dashed border-indigo-500/30 rounded-full animate-rotate-outer"></div>
+            <div class="absolute inset-4 border border-cyan-500/20 rounded-full animate-rotate-inner"></div>
+            <div class="absolute w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-3xl flex items-center justify-center shadow-lg shadow-indigo-500/20 rotate-45">
+                <i data-lucide="infinity" class="w-8 h-8 text-white -rotate-45"></i>
             </div>
-            <button onclick="window.print()" class="no-print bg-white text-indigo-700 hover:bg-indigo-50 px-4 py-2 rounded-md font-semibold text-sm transition-colors flex items-center gap-2 shadow-sm">
-                &#128438; Save as PDF
-            </button>
+        </div>
+
+        <h1 class="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-cyan-200 mb-2 text-center z-10">
+            Universal Human Values Portal
+        </h1>
+        <p id="loader-status" class="text-xs text-indigo-400 font-semibold tracking-widest uppercase mb-8 h-4 transition-all duration-300 z-10">
+            Right Understanding...
+        </p>
+
+        <!-- Loader Progress Bar -->
+        <div class="w-64 bg-slate-900 h-1.5 rounded-full border border-white/5 overflow-hidden z-10">
+            <div id="loader-fill" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-full rounded-full transition-all duration-100" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="themed-panel border-b border-slate-200 dark:border-white/5 shadow-lg relative overflow-hidden">
+        <div class="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-indigo-500/10 rounded-2xl text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 shadow-inner">
+                    <i data-lucide="shield-check" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-950 to-slate-800 dark:from-white dark:to-indigo-100">UHV Portal</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Syllabus Directory & Continuous Assessment System</p>
+                </div>
+            </div>
+
+            <!-- Global Controls & Navigation -->
+            <div class="flex items-center gap-4 flex-wrap">
+                <!-- Navigation Tabs -->
+                <nav class="flex gap-1 bg-slate-900/5 dark:bg-slate-900/60 p-1 rounded-2xl border border-slate-200 dark:border-white/5">
+                    <button onclick="switchTab('quiz')" id="tab-btn-quiz" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-indigo-600 text-white shadow-lg shadow-indigo-600/20">
+                        <i data-lucide="check-square" class="w-4 h-4"></i>
+                        Interactive Quizzes
+                    </button>
+                    <button onclick="switchTab('summary')" id="tab-btn-summary" class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white">
+                        <i data-lucide="book-marked" class="w-4 h-4"></i>
+                        Syllabus Summary
+                    </button>
+                </nav>
+
+                <!-- Light/Dark Switch Toggle Circular Button -->
+                <button onclick="toggleTheme()" class="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm text-slate-500 dark:text-yellow-400 hover:scale-105 transition-all duration-200" title="Switch Theme">
+                    <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
+                </button>
+            </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <section class="mb-12 print-break-inside-avoid">
-            <div class="mb-6">
-                <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">&#128202; Exam Structure Analysis</h2>
-                <p class="text-slate-600 text-sm">Visualizing the weightage of topics and question formats to optimize your study strategy.</p>
+    <!-- Suggestion Banner -->
+    <div class="max-w-6xl mx-auto px-4 mt-6 sm:px-6 lg:px-8">
+        <div class="themed-panel border-cyan-500/20 rounded-2xl p-4 flex gap-3.5 items-start" style="background: var(--alert-bg); border-color: var(--alert-border);">
+            <div class="p-2 bg-cyan-500/10 rounded-xl mt-0.5" style="color: var(--alert-text);">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
             </div>
-            
-            <div id="dashboard-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h3 class="text-center font-semibold text-slate-700 mb-4">Topic Weightage (Expected)</h3>
-                    <div class="chart-container">
-                        <canvas id="topicChart"></canvas>
+            <div>
+                <h4 class="font-bold text-xs sm:text-sm" style="color: var(--alert-text);">Preparation Advisory</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                    For optimal academic evaluation accuracy, we strongly suggest you first complete and read the items in the <strong class="text-indigo-600 dark:text-white font-semibold">Syllabus Summary</strong> tab before initiating your Module assessments.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dynamic Content Container -->
+    <main class="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex-grow w-full">
+        
+        <!-- SECTION 1: QUIZ TAB (ACTIVE BY DEFAULT) -->
+        <section id="quiz-section" class="space-y-6 animate-slide-up">
+            <!-- Pill Navigation for Quiz Modules -->
+            <div class="flex gap-2 p-1 rounded-xl w-fit max-w-full" style="background: var(--tab-bg); border: 1px solid var(--border-color);">
+                <button onclick="selectQuizModule(1)" id="quiz-mod-1" class="px-4 py-2 rounded-lg text-xs font-bold transition-all bg-indigo-600 text-white">Module 1</button>
+                <button onclick="selectQuizModule(2)" id="quiz-mod-2" class="px-4 py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-indigo-600 dark:hover:text-white">Module 2</button>
+                <button onclick="selectQuizModule(3)" id="quiz-mod-3" class="px-4 py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-indigo-600 dark:hover:text-white">Module 3</button>
+            </div>
+
+            <!-- Quiz Layout Panel Card -->
+            <div id="quiz-card" class="themed-panel rounded-3xl p-6 sm:p-8 min-h-[450px]">
+                
+                <!-- Active Quiz View Container -->
+                <div id="quiz-active-view">
+                    <div class="flex justify-between items-center mb-6">
+                        <span id="quiz-module-badge" class="bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 font-bold text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full border border-indigo-500/20">Module 1 Evaluation</span>
+                        <div class="text-slate-400 text-xs">
+                            Assessed Card <span id="current-q-num" class="text-indigo-600 dark:text-white font-bold">1</span> of <span id="total-q-num">30</span>
+                        </div>
                     </div>
-                    <p class="text-xs text-center text-slate-500 mt-4 no-print">Highlights the core modules emphasized in previous years.</p>
+
+                    <!-- Progress bar -->
+                    <div class="w-full bg-slate-900/5 dark:bg-slate-950 h-1.5 rounded-full mb-8 border border-slate-200 dark:border-white/5 overflow-hidden">
+                        <div id="progress-bar-fill" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+
+                    <!-- Prompt Text -->
+                    <div class="mb-8">
+                        <h2 id="question-text" class="text-lg sm:text-xl font-bold leading-relaxed">Loading assessments...</h2>
+                    </div>
+
+                    <!-- Options Grid -->
+                    <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
+
+                    <!-- Instant feedback section -->
+                    <div id="feedback-dialog" class="hidden mb-8 p-5 rounded-2xl border transition-all duration-300 animate-slide-up">
+                        <div class="flex gap-3">
+                            <div id="feedback-icon-container" class="p-1.5 rounded-full text-white shrink-0 flex items-center justify-center"></div>
+                            <div>
+                                <h4 id="feedback-title" class="font-bold text-sm mb-1">Feedback</h4>
+                                <p id="feedback-text" class="text-xs leading-relaxed"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Control actions -->
+                    <div class="flex justify-end">
+                        <button id="next-btn" onclick="goToNextQuestion()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition duration-150 flex items-center gap-2">
+                            <span>Next Evaluation</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h3 class="text-center font-semibold text-slate-700 mb-4">Marks Distribution per Paper</h3>
-                    <div class="chart-container">
-                        <canvas id="marksChart"></canvas>
+                <!-- Final Evaluation Summary view -->
+                <div id="quiz-results-view" class="hidden text-center py-8 max-w-lg mx-auto animate-slide-up">
+                    <div class="w-20 h-20 bg-indigo-500/10 border-2 border-indigo-500/25 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600 dark:text-indigo-400 shadow-inner">
+                        <i data-lucide="award" class="w-10 h-10"></i>
                     </div>
-                    <p class="text-xs text-center text-slate-500 mt-4 no-print">Breakdown of objective (Part I) vs subjective (Part II/III) marks.</p>
+                    <h2 class="text-2xl font-extrabold mb-2">Module Evaluation Complete!</h2>
+                    <p id="result-module-title" class="text-slate-400 text-xs mb-8">Module assessment metrics completed.</p>
+
+                    <!-- Score Card Grid -->
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="themed-card p-5 rounded-2xl">
+                            <span class="block text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-1">Calculated Score</span>
+                            <span class="text-2xl font-extrabold"><span id="result-score-current">0</span>/<span id="result-score-total">30</span></span>
+                        </div>
+                        <div class="themed-card p-5 rounded-2xl">
+                            <span class="block text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-1">Accuracy Factor</span>
+                            <span id="result-accuracy" class="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="retryModule()" class="flex-1 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-800 dark:text-white font-bold py-3.5 px-6 rounded-xl border border-slate-200 dark:border-white/10 transition flex items-center justify-center gap-2">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            Retry Evaluation
+                        </button>
+                        <button onclick="goToNextModuleQuiz()" id="next-module-action-btn" class="flex-1 bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-400 hover:to-cyan-400 text-white font-bold py-3.5 px-6 rounded-xl transition flex items-center justify-center gap-2">
+                            <span>Next Module Exam</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
                 </div>
+
             </div>
         </section>
 
-        <hr class="border-slate-300 my-8 print:hidden">
-
-        <section>
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 print:hidden">
-                <div>
-                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">&#128221; Interactive Solution Bank</h2>
-                    <p class="text-slate-600 text-sm">All questions matched exactly to 2, 6, and 16 marks per BPUT criteria.</p>
-                </div>
-                
-                <div class="flex flex-wrap gap-3">
-                    <div class="inline-flex rounded-md shadow-sm" role="group">
-                        <button onclick="filterQuestions('all')" class="filter-btn active px-4 py-2 text-sm font-medium bg-indigo-600 text-white border border-indigo-600 rounded-l-lg hover:bg-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500" data-filter="all">All</button>
-                        <button onclick="filterQuestions(2025)" class="filter-btn px-4 py-2 text-sm font-medium bg-white text-slate-700 border-t border-b border-r border-slate-200 hover:bg-slate-100 hover:text-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500" data-filter="2025">2025</button>
-                        <button onclick="filterQuestions(2024)" class="filter-btn px-4 py-2 text-sm font-medium bg-white text-slate-700 border-t border-b border-r border-slate-200 rounded-r-lg hover:bg-slate-100 hover:text-indigo-700 focus:z-10 focus:ring-2 focus:ring-indigo-500" data-filter="2024">2024</button>
+        <!-- SECTION 2: SYLLABUS SUMMARY TAB (HIDDEN BY DEFAULT) -->
+        <section id="summary-section" class="hidden space-y-8 animate-slide-up">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Module 1 Syllabus Accordion Card -->
+                <div class="themed-panel rounded-3xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 font-bold text-[10px] uppercase tracking-wider px-3 py-1 rounded-full border border-indigo-500/20">Module 01</span>
+                            <i data-lucide="book-open" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2">Foundations of Value Education</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">Understanding value proposals, continuous happiness metrics, the self-exploration cycle, and the distinction between natural acceptance and preconditioning.</p>
                     </div>
-                    
-                    <button id="toggleKeywordsBtn" onclick="toggleKeywords()" class="px-4 py-2 text-sm font-medium bg-amber-100 text-amber-800 border border-amber-300 rounded-md hover:bg-amber-200 transition-colors flex items-center gap-2">
-                        &#128161; Highlight Keywords
-                    </button>
+                    <div class="space-y-3 border-t border-slate-200 dark:border-white/5 pt-4" id="m1-summary-topics"></div>
                 </div>
-            </div>
 
-            <div id="qa-container" class="space-y-4">
+                <!-- Module 2 Syllabus Accordion Card -->
+                <div class="themed-panel rounded-3xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-cyan-500/10 text-cyan-600 dark:text-cyan-300 font-bold text-[10px] uppercase tracking-wider px-3 py-1 rounded-full border border-cyan-500/20">Module 02</span>
+                            <i data-lucide="users" class="w-5 h-5 text-cyan-600 dark:text-cyan-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2">Harmony in Life & Relationships</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">Evaluating co-existence of Self ('I') and Body, foundational relationship parameters (Trust & Respect), and extending harmony to universal orders.</p>
+                    </div>
+                    <div class="space-y-3 border-t border-slate-200 dark:border-white/5 pt-4" id="m2-summary-topics"></div>
+                </div>
+
+                <!-- Module 3 Syllabus Accordion Card -->
+                <div class="themed-panel rounded-3xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="bg-purple-500/10 text-purple-600 dark:text-purple-300 font-bold text-[10px] uppercase tracking-wider px-3 py-1 rounded-full border border-purple-500/20">Module 03</span>
+                            <i data-lucide="globe" class="w-5 h-5 text-purple-600 dark:text-purple-400"></i>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2">Harmony in Nature & Ethics</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">Deconstructing interactions within the four natural orders, existence as space submergence, human goals, and value-based professional ethics.</p>
+                    </div>
+                    <div class="space-y-3 border-t border-slate-200 dark:border-white/5 pt-4" id="m3-summary-topics"></div>
+                </div>
             </div>
         </section>
 
     </main>
 
-    <footer class="bg-slate-800 text-slate-400 py-6 mt-12 text-center text-sm print:hidden">
-        <p>Generated strictly according to standard BPUT marking schemes. Contains exactly mapped 2, 6, and 16-mark answers.</p>
+    <!-- Footer -->
+    <footer class="themed-panel text-slate-500 py-6 border-t border-slate-200 dark:border-white/5 text-center text-xs">
+        <p>&copy; 2026 Universal Human Values Study Center. Evaluated alignment with AI Studio parameters.</p>
     </footer>
 
+    <!-- MAIN EXAM APP JAVASCRIPT LAYER -->
     <script>
-        const examData = [
-            // ================= 2024 PAPER =================
-            // 2024 - Part I (2 Marks)
-            {
-                year: 2024, type: 'short', marks: 2,
-                question: "What do you mean by natural acceptance? How is it different from acceptance / preconditioning?",
-                answer: `<p>Natural acceptance represents the innate, uncorrupted capacity within every human being to perceive what is intrinsically right and aligned with existential harmony. It is universal, continuous, and invariant across time, space, and individual demographics. In stark contrast, preconditioning or general acceptance refers to the beliefs, assumptions, and societal perspectives acquired from external environments without internal verification. While natural acceptance always represents one's true intention and desires for mutual fulfillment, preconditioning often leads to enslavement and internal contradiction because it relies on shifting external variables rather than universal truths.</p>`,
-                keywords: ["innate", "uncorrupted capacity", "without internal verification", "universal truths"]
-            },
-            {
-                year: 2024, type: 'short', marks: 2,
-                question: "As per the proposal in UHV, what else is required for a human being beside physical facility to fulfill basic human aspirations? How much important are those?",
-                answer: `<p>Beyond the mere accumulation of physical facilities, human beings fundamentally require Right Understanding within the Self and Right Feeling in all relationships. Physical facilities alone are necessary for the maintenance of the physical body but are entirely insufficient for the continuous happiness of the conscious Self. Right understanding and relationship are of paramount importance because they transform mere physical existence into human consciousness, ensuring that interactions result in mutual fulfillment and continuous psychological harmony rather than exploitation.</p>`,
-                keywords: ["Right Understanding", "Right Feeling", "insufficient", "continuous happiness", "mutual fulfillment"]
-            },
-            {
-                year: 2024, type: 'short', marks: 2,
-                question: "How can you verify the proposals which may lead to right understanding?",
-                answer: `<p>Proposals in the UHV framework must be verified through a rigorous, two-pronged process of self-exploration rather than blind faith. The first mechanism involves validating the proposal internally against one's own Natural Acceptance at the level of thought. The second mechanism entails Experiential Validation, which requires living according to the proposal in daily life. If implementing the proposal results in mutual happiness in human-to-human relationships and mutual prosperity in human-to-nature interactions, the proposal is verified as right understanding.</p>`,
-                keywords: ["self-exploration", "Natural Acceptance", "Experiential Validation", "mutual happiness", "mutual prosperity"]
-            },
-            {
-                year: 2024, type: 'short', marks: 2,
-                question: "What the two existential realities of human being are as discussed in proposal? How are they different from each other based on their needs?",
-                answer: `<p>The human being is not a monolithic entity but the co-existence of two distinct existential realities: the conscious, sentient Self (referred to as "I") and the material, physio-chemical Body. The needs of the Self—such as trust, respect, and happiness—are psychological, qualitative, and continuous in time. Conversely, the needs of the Body—such as food, clothing, and shelter—are physiological, quantitative, and inherently temporary.</p>`,
-                keywords: ["co-existence", "sentient Self", "physio-chemical Body", "qualitative", "continuous", "quantitative", "temporary"]
-            },
-            {
-                year: 2024, type: 'short', marks: 2,
-                question: "What do you mean by self-regulation? What is/are its outcome(s)?",
-                answer: `<p>Self-regulation (Sanyam) is defined as the inherent feeling of responsibility within the conscious Self to nurture, protect, and rightly utilize the physical Body as an instrument. The primary and immediate outcome of self-regulation is health (Swasthya) at the level of the body, which implies that the physiological systems operate in harmony and act strictly according to the ethical and functional instructions of the Self.</p>`,
-                keywords: ["feeling of responsibility", "nurture, protect, and rightly utilize", "health (Swasthya)", "operate in harmony"]
-            },
-            {
-                year: 2024, type: 'short', marks: 2,
-                question: "Feelings in the relationship are associated to (self/body). State atleast four naturally acceptable feelings discussed in the UHV proposal.",
-                answer: `<p>Feelings in any relationship are associated exclusively with the <b>Self</b>, as the material body fundamentally lacks the capacity to feel, evaluate, or understand. Four naturally acceptable feelings that form the core of human relationships include Trust (Vishwas), Respect (Samman), Affection (Sneh), and Care (Mamata).</p>`,
-                keywords: ["exclusively with the Self", "Trust", "Respect", "Affection", "Care"]
-            },
-            {
-                year: 2024, type: 'short', marks: 2,
-                question: "What is 'trust' as per the proposal given in the UHV Class? Is it same for all or different for different individuals as per the proposal?",
-                answer: `<p>Trust (Vishwas) is the foundational value in any human relationship, defined specifically as the unwavering assurance that every human being inherently intends to make oneself and others happy and prosperous. At the level of fundamental intention (natural acceptance), this trust is exactly the same for all human beings; however, at the level of competence (the ability to execute the intention), individuals vary significantly based on their current level of right understanding.</p>`,
-                keywords: ["foundational value", "unwavering assurance", "intention", "same for all", "competence", "vary significantly"]
-            },
-            {
-                year: 2024, type: 'short', marks: 2,
-                question: "What do you mean by 'Justice' in human-to-human relationship?",
-                answer: `<p>Justice (Nyaya) in a human-to-human relationship is a comprehensive process encompassing the recognition of values (definite feelings), their proper fulfillment through behavior, and the right evaluation of that fulfillment. When these elements are executed correctly and consciously, the ultimate outcome of justice is mutual happiness, effectively transforming relationships from transactional exchanges into sources of continuous harmony.</p>`,
-                keywords: ["recognition of values", "proper fulfillment", "right evaluation", "mutual happiness"]
-            },
-            {
-                year: 2024, type: 'short', marks: 2,
-                question: "What are common goals discussed in the proposal which may lead to harmony in society?",
-                answer: `<p>The comprehensive human goals that lead to societal harmony constitute a holistic four-fold framework. These goals are: achieving Right Understanding and Right Feeling in every individual, ensuring Prosperity in every family unit, establishing Fearlessness (Trust) across the entire society, and realizing Co-existence (Mutual Fulfillment) with the rest of nature.</p>`,
-                keywords: ["Right Understanding", "Prosperity", "Fearlessness", "Co-existence"]
-            },
-            {
-                year: 2024, type: 'short', marks: 2,
-                question: "How many orders are there in nature? List then and state one line about each order.",
-                answer: `<ul class="list-disc pl-5 space-y-1">
-                    <li><b>Physical order:</b> Comprises inorganic matter like soil and water.</li>
-                    <li><b>Bio (Pranic) order:</b> Includes cellular and living organisms like plants and trees.</li>
-                    <li><b>Animal order:</b> Consists of entities possessing a conscious Self with the basic "will to live".</li>
-                    <li><b>Human order:</b> Encompasses human beings characterized by a conscious Self possessing the "will to live with continuous happiness".</li>
-                </ul>`,
-                keywords: ["Physical order", "Bio (Pranic) order", "Animal order", "Human order"]
-            },
+        // Expanded syllabus topic dataset (Academically detailed ~5 lines, deep PYQ alignment)
+        const syllabusDirectory = {
+            1: [
+                {
+                    title: "Value Education",
+                    desc: "The critical educational process designed to help individuals discover 'what to do' (values) and 'how to do it' (skills) in universal harmony. Value Education is not a set of moral dogmas, but a rational methodology leading from animal consciousness (Jiv Chetna)—focused solely on the accumulation of physical facilities—to human consciousness (Manav Chetna), facilitating mutual happiness and mutual prosperity across all levels of living."
+                },
+                {
+                    title: "Self-Exploration",
+                    desc: "An internal, evolutionary process of self-observation and value-discovery. It acts as a dialogical exploration between 'what I am' (my current behavior and state of being) and 'what I really want to be' (my natural acceptance). Every proposal in this curriculum is not to be accepted on authority but needs verification on one's own right, validating it in actual living and verifying it with natural acceptance."
+                },
+                {
+                    title: "Natural Acceptance",
+                    desc: "The innate, universal, and invariant faculty of human consciousness that recognizes harmony and relationship naturally. Unlike conditional acceptance—which is highly variable and depends on external preconditioning, sensory pleasures, or peer pressure—Natural Acceptance remains constant across all human beings, regardless of time, physical location, or cultural backgrounds."
+                },
+                {
+                    title: "Continuous Happiness (Sukh)",
+                    desc: "An ongoing qualitative state of internal harmony and equilibrium inside the conscious Self ('I'). Sukh is achieved when there is alignment and no internal contradictions within the desires, thoughts, and expectations of the Self. It stands in stark contrast to sensory excitement, which is temporary, transient, and leads to addiction or eventual physical exhaustion."
+                },
+                {
+                    title: "Prosperity (Samridhi)",
+                    desc: "The qualitative feeling of having and producing more than required physical facilities. Prosperity requires a human being to first identify the real quantitative limitations of their material Body, and secondly, to produce or possess an abundance of physical facility. Realizing this limitation prevents the limitless hoarding of materials and eliminates the feeling of deprivation."
+                },
+                {
+                    title: "Right Understanding (Samadhan)",
+                    desc: "The fundamental cognitive clarity that enables humans to observe and understand harmony as it naturally exists across all levels of existence (Self, Family, Society, Nature). Right Understanding is the foundational priority in human life; without it, we cannot correctly evaluate human relationships or identify the correct limits of physical facilities."
+                },
+                {
+                    title: "Physical Facilities (Suvidha)",
+                    desc: "Physical-chemical resources utilized to nurture, protect, and properly operate the material Body. In the UHV framework, Suvidha is recognized as necessary but incomplete for a human being. While animals are satisfied with physical facilities alone, humans require Right Understanding in the Self and Right Feelings in Relationships alongside Suvidha."
+                }
+            ],
+            2: [
+                {
+                    title: "Co-existence of Self ('I') & Body",
+                    desc: "The understanding that a human being is a co-existence of two distinct realities: the conscious Self ('I') and the material Body. The Self is qualitative, requiring continuous feelings of trust, respect, and peace; the Body is material and quantitative, needing temporary physico-chemical facilities. Confusing these two realities leads to trying to satisfy qualitative needs with physical facilities, which is impossible."
+                },
+                {
+                    title: "Trust (Vishwas)",
+                    desc: "The foundational value in relationships, defined as the unconditional clarity and assurance that the other person naturally wants my happiness and prosperity. Conflict and anger arise when we doubt the other's *intention* (which is always naturally for our well-being) because we are evaluating and reacting to their lack of *competence* (their external behaviors and mistakes)."
+                },
+                {
+                    title: "Respect (Samman) as Right Evaluation",
+                    desc: "Respect means 'Right Evaluation'—observing and accepting the other exactly as they are. Disrespect occurs when we deviate from this: Over-evaluation (Adhi-mulyan, judging someone above reality), Under-evaluation (Ava-mulyan, evaluating someone below reality), or Otherwise-evaluation (Amulyan, judging someone on non-essential factors like caste, gender, body, or wealth)."
+                },
+                {
+                    title: "Justice (Nyaya) in Relationships",
+                    desc: "Justice is the recognition, fulfillment, and right evaluation of values in human-to-human relationships. When values like Trust, Respect, and Affection are correctly observed and fulfilled, it leads to mutual happiness (Ubhay-tripti). This mutual fulfillment is the structural building block for social harmony and the elimination of exploitation."
+                },
+                {
+                    title: "Love (Prem) as the Complete Value",
+                    desc: "Love is the complete value (Sampurna Mulya) in human relationships, representing the feeling of unconditional relatedness to all units in existence. It starts within the family circle, extends systematically to the village, state, and ultimately manifests as a universal human family, allowing one to live in complete harmony without feelings of opposition."
+                },
+                {
+                    title: "Care and Guidance",
+                    desc: "Care is the internal feeling of responsibility to nurture and protect the physical-chemical operations of the Body. Guidance is the corresponding conscious responsibility of the Self to support and facilitate Right Understanding and value education within the Self ('I') of another human being, ensuring mutual growth."
+                },
+                {
+                    title: "Universal Human Order (Sarvabhaum Vyavastha)",
+                    desc: "The systemic global organization of humanity structured directly from family order to the world family. It is realized through the fulfillment of the five dimensions of human systems (Education, Health, Production, Justice, and Exchange) which satisfy societal goals: Samadhan (Right Understanding), Samridhi (Prosperity), Abhay (Trust), and Sah-astitva (Co-existence)."
+                }
+            ],
+            3: [
+                {
+                    title: "The Four Orders of Nature",
+                    desc: "The natural world consists of four distinct levels: Physical (material elements, soil), Pranic (plants, bio-life), Animal, and Human. The first three orders naturally co-exist in mutual fulfillment, nurturing each other. The Human order possesses potential for right understanding, but currently acts in exploitation of the other three orders due to a lack of values."
+                },
+                {
+                    title: "Existence as Co-existence (Sah-astitva)",
+                    desc: "The deep realization that existence is co-existence, wherein all bounded, active units (material and conscious) are submerged in the all-pervading, inactive, and transparent Space. Every unit is self-organized, energized, and naturally participates in relationships of mutual fulfillment, order, and co-existence with all other units."
+                },
+                {
+                    title: "Self-Regulation (Sanyam) & Health (Swasthya)",
+                    desc: "Sanyam is the feeling of responsibility in the conscious Self for the systematic nurturing, protection, and right utilization of the physical Body. Swasthya is the physical equilibrium of the body itself, characterized by organs working in harmony, and the body being ready to act as a proper instrument of the Self."
+                },
+                {
+                    title: "Professional Ethics",
+                    desc: "The ethical conduct of a professional that is conducive to the universal human order. It reflects the capability of a professional to make decisions that enrich human relationships and preserve nature. It marks a transition from a world-view of animal consciousness (exploitation) to human consciousness (mutual preservation)."
+                },
+                {
+                    title: "Humanistic Constitution",
+                    desc: "The structural, legal, and social framework of a society that guarantees mutual fulfillment among all humans and ensures the preservation and enrichment of the first three orders of nature. It forms the foundational blueprint for a global family and a universal human order."
+                }
+            ]
+        };
 
-            // 2024 - Part II (6 Marks)
-            {
-                year: 2024, type: 'medium', marks: 6,
-                question: "Gap between 'what I am' and 'what I really want to be'.",
-                answer: `<div class="space-y-3">
-                    <p>Observation of human behavior reveals a significant, distressing, and widening gap between "what I am" (one's current state of imagination, desires, and daily reality) and "what I really want to be" (one's natural acceptance). Day by day, this gap is increasing due to an over-reliance on external preconditioning and sensations derived from the physical world. Individuals frequently adopt societal beliefs—such as equating immense wealth with personal success—without subjecting these beliefs to inner existential verification.</p>
-                    <p>The major reason behind this divergence is the absence of right understanding; people operate heavily out of animal consciousness, prioritizing physical facilities over meaningful relationships and inner peace. To reduce this gap, the requisite effort involves a continuous process of self-exploration. By engaging in a rigorous dialogue within the Self, an individual can critically evaluate preconditioned desires against their natural acceptance, progressively updating their assumptions until their daily living perfectly mirrors their innate desire for harmony.</p>
-                </div>`,
-                keywords: ["widening gap", "natural acceptance", "external preconditioning", "animal consciousness", "self-exploration"]
-            },
-            {
-                year: 2024, type: 'medium', marks: 6,
-                question: "Animal consciousness vs. Human consciousness.",
-                answer: `<p class="mb-2">The differentiation between animal and human consciousness is foundational to resolving interpersonal and societal conflict. The priorities and outcomes of these states differ drastically.</p>
-                <table class="w-full text-sm text-left border-collapse border border-slate-300">
-                    <thead class="bg-slate-100">
-                        <tr>
-                            <th class="border border-slate-300 px-3 py-2">Analytical Parameter</th>
-                            <th class="border border-slate-300 px-3 py-2">Animal Consciousness</th>
-                            <th class="border border-slate-300 px-3 py-2">Human Consciousness</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="border border-slate-300 px-3 py-2 font-semibold">Fundamental Priority</td>
-                            <td class="border border-slate-300 px-3 py-2">Physical facility is deemed the sole requirement for survival and happiness.</td>
-                            <td class="border border-slate-300 px-3 py-2">Right understanding and relationships take precedence, followed by physical facilities.</td>
-                        </tr>
-                        <tr>
-                            <td class="border border-slate-300 px-3 py-2 font-semibold">Societal Worldview</td>
-                            <td class="border border-slate-300 px-3 py-2">Focuses on dominating, extracting, and exploiting others and nature to secure resources.</td>
-                            <td class="border border-slate-300 px-3 py-2">Focuses on co-existence, mutual fulfillment, and the right utilization of resources.</td>
-                        </tr>
-                        <tr>
-                            <td class="border border-slate-300 px-3 py-2 font-semibold">Ultimate Outcome</td>
-                            <td class="border border-slate-300 px-3 py-2">Leads to internal deprivation, systemic fear, and societal conflict (Crowd or Battlefield).</td>
-                            <td class="border border-slate-300 px-3 py-2">Leads to continuous happiness, ecological sustainability, and an Undivided Society.</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <p class="mt-2">For example, a corporate executive operating in animal consciousness may accumulate immense wealth through unethical means. Conversely, a professional operating in human consciousness utilizes skills strictly as instruments to fulfill relational and societal responsibilities.</p>`,
-                keywords: ["sole requirement", "Right understanding and relationships", "dominating", "co-existence", "internal deprivation", "Undivided Society"]
-            },
-            {
-                year: 2024, type: 'medium', marks: 6,
-                question: "Holistic development leading to mutual happiness and prosperity.",
-                answer: `<p>Holistic development transcends mere professional advancement, technical mastery, or economic growth; it entails the profound transformation of human consciousness. While current developmental paradigms measure progress cyclically through the endless accumulation of physical facilities, holistic development focuses on achieving the full potential of the human Self. This requires a conscious awakening to the activities of contemplation, right understanding, and the realization of universal co-existence.</p>
-                <p class="mt-2">It is not merely doing better in the professional field; rather, it is doing the <i>right</i> thing in the professional field. When a professional achieves holistic development, their technical skills are directly guided by right understanding. For instance, an engineer designing an industrial plant will not merely optimize for shareholder profit but will ensure the technology is eco-friendly, cyclically regenerative, and socially beneficial. This behavior inherently produces mutual happiness in human relationships and mutual prosperity with nature, as it is fundamentally devoid of exploitation.</p>`,
-                keywords: ["transformation of human consciousness", "full potential of the human Self", "doing the right thing", "eco-friendly, cyclically regenerative", "devoid of exploitation"]
-            },
-            {
-                year: 2024, type: 'medium', marks: 6,
-                question: "Happiness, unhappiness, and excitement.",
-                answer: `<p>According to the UHV proposal, <b>happiness</b> is the continuous state of being in harmony, where one's current state (imagination, thoughts, and actions) perfectly aligns with one's natural acceptance. <b>Unhappiness</b> is the precise opposite: a state of disharmony, internal contradiction, or conflict.</p>
-                <p class="mt-2"><b>Excitement</b>, however, is a temporary surge of pleasure derived from favorable sensory inputs from the body or favorable attention from others. Happiness and excitement are fundamentally different. The current societal scenario disastrously conflates excitement with happiness. People seek continuous happiness through the discontinuous medium of the physical body—such as eating excessively tasty food or buying luxury vehicles. Because physical sensations are inherently temporary and inevitably lead to physiological fatigue or psychological numbness, the pursuit of excitement as a surrogate for happiness leaves the individual perpetually dissatisfied, sparking a relentless and exhausting search for the next sensory high.</p>`,
-                keywords: ["continuous state of being in harmony", "internal contradiction", "temporary surge of pleasure", "discontinuous medium", "physiological fatigue"]
-            },
-            {
-                year: 2024, type: 'medium', marks: 6,
-                question: "Prosperity vs. Wealth.",
-                answer: `<p>The UHV framework draws a sharp, existential distinction between prosperity and wealth. <b>Wealth</b> is merely a physical, objective metric—the quantitative accumulation of physical facilities or money. <b>Prosperity</b>, on the other hand, is a deep psychological feeling; it is the feeling of having, or being able to produce, more physical facilities than are strictly required for the nurturing and protection of the body.</p>
-                <p class="mt-2">Therefore, the equation "Accumulation of Wealth = Prosperity" is fundamentally false. An individual may possess vast financial wealth yet feel deeply deprived because their desires are limitless and entirely devoid of right understanding. Such a person will continue exploiting others to hoard more. Conversely, a farmer with modest means who accurately assesses their family's actual bodily needs, and fulfills them through sustainable production, experiences true prosperity. Prosperity naturally leads to sharing, while wealth without understanding leads to hoarding.</p>`,
-                keywords: ["objective metric", "psychological feeling", "feeling of having", "fundamentally false", "sharing", "hoarding"]
-            },
-            {
-                year: 2024, type: 'medium', marks: 6,
-                question: "Needs of the Self cannot be fulfilled by Physio-Chemical Things.",
-                answer: `<p>The UHV proposal asserts that the human being is a complex co-existence of a conscious entity (the Self) and a material entity (the Body). The needs of the Self—such as trust, respect, affection, and continuous happiness—are qualitative in nature and continuous in time. The needs of the body—such as food, clothing, and shelter—are quantitative, physico-chemical, and temporary.</p>
-                <p class="mt-2">Attempting to fulfill the continuous, psychological needs of the Self with the temporary, physio-chemical things of the Body is an egregious gross misunderstanding. For example, bestowing a person with an expensive luxury watch (a physio-chemical entity) cannot compensate for a systemic lack of respect (a need of the Self) in a relationship. Respect can only be fulfilled by right evaluation and right feeling originating from another Self, not by material transactions. When people attempt to satisfy the Self with physio-chemical things, they fall into a loop of endless accumulation and inevitable deprivation.</p>`,
-                keywords: ["qualitative", "continuous in time", "quantitative, physico-chemical, and temporary", "gross misunderstanding", "endless accumulation and inevitable deprivation"]
-            },
-            {
-                year: 2024, type: 'medium', marks: 6,
-                question: "Program for health based on self-regulation.",
-                answer: `<p>Self-regulation (Sanyam) is the conscious responsibility assumed by the Self to nurture, protect, and utilize the body correctly. Based on this, the program is bifurcated into two distinct phases:</p>
-                <ul class="list-disc pl-5 mt-2 space-y-2">
-                    <li><b>For staying healthy:</b> The daily program includes the proper intake of highly nutritious food, maintaining a balanced lifestyle with adequate physical labor to keep the organs active, regulating breathing through conscious practices, and ensuring correct posture and timely rest.</li>
-                    <li><b>For bringing the body back to harmony:</b> When temporary disharmony (illness) occurs, the very first step is regulating the diet and lifestyle to allow the body to utilize its inherent mechanism to heal itself. If this self-healing fails, appropriate medication or external treatment is administered strictly to support the body's natural return to harmony, rather than masking symptoms merely to facilitate further sensory indulgence.</li>
-                </ul>`,
-                keywords: ["conscious responsibility", "staying healthy", "balanced lifestyle", "bringing the body back to harmony", "inherent mechanism to heal itself"]
-            },
-            {
-                year: 2024, type: 'medium', marks: 6,
-                question: "Continuous happiness from favorable feelings from others.",
-                answer: `<p>Favorable feelings from others—such as receiving attention, praise, admiration, or validation from family members and friends—absolutely cannot ensure continuous happiness. These inputs are inherently conditional, highly unpredictable, and entirely dependent on the external environment or the other person's fluctuating state of mind.</p>
-                <p class="mt-2">According to UHV principles, relying on the other person's competence for one's own happiness places the Self in a perpetual state of vulnerability and enslavement. The right way to ensure continuous happiness is through the development of right understanding and right feeling within oneself. When an individual operates from right understanding, their internal state of harmony is maintained independently of external validation. Happiness becomes a natural byproduct of living with definite human conduct and ensuring mutual fulfillment in all interactions, effectively shifting the locus of control from the chaotic outside world to the serene inner Self.</p>`,
-                keywords: ["conditional", "unpredictable", "vulnerability and enslavement", "development of right understanding", "independently of external validation", "locus of control"]
-            },
-            {
-                year: 2024, type: 'medium', marks: 6,
-                question: "Anger, Intention, and Competence in Trust.",
-                answer: `<p>Anger arises in any relationship primarily due to a deficit of trust—specifically, the failure to distinguish clearly between a person's intention (natural acceptance) and their competence (current ability). Trust is defined as the assurance that the other inherently desires one's happiness. Frequently, individuals evaluate themselves based on their innate intention (which is always good) but evaluate others based on their lack of competence (the failure to execute the intention flawlessly).</p>
-                <p class="mt-2">When a relative or colleague makes a mistake, observing their lack of competence often leads to doubting their intention, which immediately breeds irritation, resentment, and anger. The solution lies in realizing that the other's intention is identical to one's own. By explicitly trusting their intention, one replaces the destructive emotion of anger with a constructive feeling of responsibility, offering guidance and support to help the other improve their competence over time.</p>`,
-                keywords: ["deficit of trust", "intention", "competence", "doubting their intention", "constructive feeling of responsibility", "guidance and support"]
-            },
-            {
-                year: 2024, type: 'medium', marks: 6,
-                question: "Respect and evaluation.",
-                answer: `<p>Respect (Samman) is strictly defined as the right evaluation of an individual based on their reality as a conscious Self, not their physical Body. Disrespect manifests profoundly through three erroneous forms of evaluation:</p>
-                <ul class="list-disc pl-5 mt-2 space-y-2">
-                    <li><b>Over-evaluation:</b> Assessing someone as more than they actually are (e.g., idolizing a wealthy individual as a moral paragon regardless of their ethics). Outcome: Ego inflation, unrealistic expectations, and eventual disappointment.</li>
-                    <li><b>Under-evaluation:</b> Assessing someone as less than they are (e.g., dismissing an individual's intellectual capacity due to their physical appearance or lower socioeconomic status). Outcome: Depression, feelings of inferiority, and social withdrawal.</li>
-                    <li><b>Otherwise-evaluation:</b> Assessing someone entirely contrary to reality (e.g., assuming a person is malicious when they are simply incompetent). Outcome: Deep relational fractures, hostility, and mutual mistrust.</li>
-                </ul>
-                <p class="mt-2">Right evaluation, the core of respect, ensures that individuality is honored, acknowledging that the other is fundamentally similar in existential purpose.</p>`,
-                keywords: ["right evaluation", "conscious Self", "Over-evaluation", "Under-evaluation", "Otherwise-evaluation"]
-            },
-            {
-                year: 2024, type: 'medium', marks: 6,
-                question: "Minimum content of respect.",
-                answer: `<p>The minimum content of respect rests entirely on the realization that "the other is similar to me" at the fundamental level of the Self. This similarity is systematically structured across three specific dimensions:</p>
-                <ol class="list-decimal pl-5 mt-2 space-y-2">
-                    <li><b>Purpose:</b> Both individuals possess the identical, invariant natural acceptance to live with continuous happiness and prosperity.</li>
-                    <li><b>Program:</b> Both individuals must undertake the exact same program to achieve this purpose, which is gaining right understanding and living in harmony at all levels of existence.</li>
-                    <li><b>Potential:</b> Both possess the same innate potential—the continuous activities of desire, thought, and expectation in the Self—to realize this right understanding.</li>
-                </ol>
-                <p class="mt-2">It is termed the "minimum" content because without recognizing this baseline existential similarity, any interaction immediately devolves into differentiation and disrespect based on superficial bodily, material, or ideological metrics.</p>`,
-                keywords: ["similar to me", "Purpose", "Program", "Potential", "differentiation and disrespect"]
-            },
-            {
-                year: 2024, type: 'medium', marks: 6,
-                question: "Excellence vs. Competition.",
-                answer: `<p>Excellence is the supreme state of achieving complete right understanding and living in continuous harmony. It is an absolute, self-referential state measured strictly against one's own natural acceptance. Competition, conversely, is a relative, externalized state where success is defined exclusively by defeating, surpassing, or dominating another individual.</p>
-                <p class="mt-2">Working for excellence inherently fosters collaboration; an excellent individual naturally assists others in reaching the same state, realizing that societal harmony benefits all. Competition breeds opposition, fear, and a "Crowd" or "Battlefield" mentality, which violently violates the human goal of mutual fulfillment. Consequently, excellence through collaboration is naturally acceptable, as it leads to continuous happiness and trust, whereas competition yields isolation, anxiety, and only temporary excitement.</p>`,
-                keywords: ["self-referential state", "defeating, surpassing, or dominating", "fosters collaboration", "Crowd or Battlefield", "mutual fulfillment"]
-            },
+        // Complete 90 Questions Database (30 per module, mapping syllabus and PYQs)
+        const quizDatabase = {
+            1: [
+                { q: "What is the basic human aspiration proposed in Universal Human Values?", options: ["Continuous happiness and continuous prosperity", "Accumulation of maximum wealth", "Attaining structural power in society", "Technological elimination of labor"], correct: 0, exp: "All human aspirations are reducible to continuous happiness (sukha) and continuous prosperity (samridhi)." },
+                { q: "Which of the following describes 'Value Education'?", options: ["Financial engineering instruction", "The process of understanding 'what is valuable' and 'how to do' in harmony", "Enforcing traditional family laws", "Memorizing state political rules"], correct: 1, exp: "Value education helps us understand our participation in harmony at all levels of living." },
+                { q: "What is the process of self-exploration?", options: ["Evaluations administered by third-party instructors", "A dialogue between 'what I am' and 'what I really want to be' based on natural acceptance", "Strict suppression of thought patterns", "Analyzing exterior statistical parameters"], correct: 1, exp: "Self-exploration is a self-evolutionary process of discovering natural acceptance through experiential validation." },
+                { q: "Which of the following is considered 'natural acceptance'?", options: ["Beliefs taught by media or authority", "An innate, invariant, and universal inner voice of harmony", "Decisions made under peer pressure", "Refnes to external stimulation"], correct: 1, exp: "Natural acceptance is constant, invariant, and universal across all times, places, and individuals." },
+                { q: "What is 'prosperity' (Samridhi) as defined in UHV?", options: ["Accumulating unlimited materials", "The feeling of having more than required physical facilities", "Possessing high academic degrees", "Expensive sensory experiences"], correct: 1, exp: "Prosperity is the dual state of identifying our physical needs and having more than required." },
+                { q: "What are the three structural pillars required to fulfill human aspirations?", options: ["Right Understanding, Relationship, and Physical Facilities", "Capitalism, Laws, and Labor", "Skills, Exams, and Wealth", "Social media, Platforms, and Markets"], correct: 0, exp: "Right understanding leads to mutual happiness in relationships and mutual prosperity in physical facilities." },
+                { q: "How can we understand the value of an object, like a pen?", options: ["Market retail price tag", "Its usability and participation in the larger system", "Exact material weight of the plastic", "Visual luxury comparisons"], correct: 1, exp: "The value of any unit is its participation/role in keeping the larger system in harmony." },
+                { q: "What are the four levels of human living?", options: ["Local, State, National, and International", "Self, Family, Society, and Nature/Existence", "Childhood, Youth, Adulthood, and Old age", "Elementary, Secondary, Bachelor, and Master"], correct: 1, exp: "Human existence covers four nested levels: Self, Family, Society, and Nature/Existence." },
+                { q: "What is 'preconditioning' in UHV?", options: ["Pure natural acceptance since birth", "Assumed beliefs adopted without self-verification", "Scientific research", "Biological refnes"], correct: 1, exp: "Preconditionings are beliefs adopted from the outside world without critical self-verification." },
+                { q: "The primary focus of current educational systems is mostly centered on:", options: ["Promoting relationship values", "Skill development and maximizing physical facilities", "Co-existence with nature", "Developing self-regulation"], correct: 1, exp: "Most modern education emphasizes technology, business, and physical wealth (skills) rather than value-based self-regulation." },
+                { q: "Which state of consciousness leads to a feeling of 'deprivation'?", options: ["Human Consciousness", "Animal Consciousness focusing only on physical facilities", "Cosmic Consciousness", "Self-explored consciousness"], correct: 1, exp: "Animal consciousness identifies purely with physical needs, leading to a feeling of endless scarcity." },
+                { q: "How is 'wealth' different from 'prosperity'?", options: ["Wealth is internal; prosperity is physical", "Wealth is physical facilities; prosperity is the feeling of having more than enough", "Wealth is ethical; prosperity is materialistic", "There is no difference"], correct: 1, exp: "Wealth is the physical item itself, while prosperity is the feeling of abundance." },
+                { q: "The verification process in self-exploration must occur at two levels:", options: ["Scriptures and teachers", "Natural acceptance and experiential validation", "Social norms and peer consensus", "Digital facts and mathematics"], correct: 1, exp: "We verify proposals based on natural acceptance and validate them experientially in our lives." },
+                { q: "What occurs when human beings prioritize relationships over physical facilities?", options: ["They become poor", "They transition to human consciousness, ensuring mutual happiness", "They fail state targets", "They develop dependencies"], correct: 1, exp: "Prioritizing relationships over physical facility transitions us to human consciousness." },
+                { q: "Why is continuous happiness not possible through sensory stimulation alone?", options: ["Food is scarce", "Sensory pleasure is temporary and turns to discomfort", "Senses cannot interact with physical objects", "It is banned by UHV guidelines"], correct: 1, exp: "Sensory pleasures are temporary; attempting to make them continuous leads to addiction and exhaustion." },
+                { q: "What is the primary objective of Universal Human Values?", options: ["Provide religious guidance", "Help transition from animal to human consciousness", "Teach business negotiations", "Enforce strict behavior patterns"], correct: 1, exp: "UHV aims to transition our living from Jiv Chetna (animal consciousness) to Manav Chetna (human consciousness)." },
+                { q: "Which is a physical-chemical need of the Body?", options: ["Trust", "Food", "Respect", "Affection"], correct: 1, exp: "Food is quantitative, temporary, and physical-chemical, satisfying bodily needs." },
+                { q: "What is the gap between 'what I am' and 'what I want to be'?", options: ["The gap between my current behavior and natural acceptance", "The gap between my bank balance and dreams", "The gap between my skills and corporate requirements", "The gap between my age and wisdom"], correct: 0, exp: "The gap represents the distance between our current state and our natural acceptance." },
+                { q: "What constitutes 'holistic development'?", options: ["Developing specialized technical skills", "Ensuring harmony from self to entire existence", "Maximizing gross domestic product", "Acquiring global travel milestones"], correct: 1, exp: "Holistic development is the process of realizing and ensuring harmony at all four levels of living." },
+                { q: "What is the source of values?", options: ["Political manifestos", "Natural acceptance verified through self-exploration", "Commercial business catalogs", "Religious dictates"], correct: 1, exp: "Values are discovered internally through natural acceptance and self-exploration." },
+                { q: "Which is continuous in time?", options: ["The need for food", "The need for respect", "The need for clothes", "The need for medicine"], correct: 1, exp: "Respect is a need of the Self, which is continuous, unlike the physical needs of the body." },
+                { q: "The feeling of 'deprivation' indicates:", options: ["We do not have enough wealth", "We do not have right understanding and relationship", "We are physically disabled", "We are outcompeted by neighbors"], correct: 1, exp: "Deprivation arises when we lack the right understanding to determine how much physical facility is actually needed." },
+                { q: "In value education, 'Sanskar' means:", options: ["Traditional rituals", "The commitment and habit of living in harmony", "Language grammar", "Family assets"], correct: 1, exp: "Sanskar is the internal state of commitment to live in accordance with right understanding." },
+                { q: "What is 'Sukh'?", options: ["Material physical facility", "Continuous state of harmony", "Temporary sensory pleasure", "Accumulating cash"], correct: 1, exp: "Sukh is the continuous state of being in harmony." },
+                { q: "What is 'Suvidha'?", options: ["Internal peace", "Physical facilities satisfying the body", "Mutual relationship", "Right understanding"], correct: 1, exp: "Suvidha refers to the physical-chemical facilities used to nurture and protect the body." },
+                { q: "Experiential validation means:", options: ["Testing theories in a physical laboratory", "Validating proposals through behavior and work", "Reading case studies", "Accepting teacher feedback"], correct: 1, exp: "Experiential validation is living in mutual fulfillment with other human beings and work with nature." },
+                { q: "The proposal of UHV is to be accepted on the basis of:", options: ["Authority of the teacher", "Self-exploration and natural acceptance", "Popular public opinion", "Historical texts"], correct: 1, exp: "UHV states that proposals should not be accepted blindly, but verified on your own right." },
+                { q: "Right understanding (Samadhan) is the need of:", options: ["The Body", "The Self ('I')", "Both Body and Self", "Neither"], correct: 1, exp: "Right understanding is an qualitative need of the conscious Self ('I')." },
+                { q: "How are values and skills related in education?", options: ["Skills are superior to values", "Values guide 'what to do', skills guide 'how to do'", "Values are outdated; skills are modern", "They are identical"], correct: 1, exp: "Values determine the human direction (what to do), while skills provide the technical methods (how to do)." },
+                { q: "Continuous happiness is achievable by:", options: ["Eating tasty food continuously", "Experiencing harmony at all levels of living", "Accumulating physical wealth", "Competing with peers"], correct: 1, exp: "Continuous happiness is the natural result of living in harmony at all four levels of existence." }
+            ],
+            2: [
+                { q: "The human being is a co-existence of which two entities?", options: ["The Brain and the Heart", "The Self ('I') and the Body", "Intellect and Ego", "The Senses and the Soul"], correct: 1, exp: "Human existence is the co-existence of the conscious Self ('I') and the material Body." },
+                { q: "Which of the following is a characteristic of the needs of the 'Self' ('I')?", options: ["Quantitative and temporary", "Qualitative and continuous", "Satisfied by physico-chemical facilities", "Dependent on food"], correct: 1, exp: "The needs of the Self (like trust, respect, and peace) are qualitative and continuous." },
+                { q: "How are the needs of the 'Body' satisfied?", options: ["Right feelings", "Physical facilities", "Social media praise", "Mental calculation"], correct: 1, exp: "Bodily needs (like food and shelter) are satisfied by physical-chemical materials." },
+                { q: "What is 'Trust' (Vishwas) in human relationships?", options: ["Blind trust", "The assurance that the other wants my happiness and prosperity", "Complex legal contracts", "Waiting for absolute perfection"], correct: 1, exp: "Trust is the foundational value, defined as the assurance of the other's intention." },
+                { q: "What is the major cause of relationship conflict?", options: ["Physical appearance", "Doubting their intention while judging their competence", "Financial equality", "Social rank differences"], correct: 1, exp: "We judge ourselves by our intentions but judge others by their external competence/behavior." },
+                { q: "What does 'Respect' (Samman) mean?", options: ["Bowing down to elders", "Right evaluation of the other as being similar to me", "Allowing exploitation", "Fearing authority"], correct: 1, exp: "Respect is right evaluation—recognizing that the other is similar to me in purpose." },
+                { q: "Evaluating someone less than what they are is called:", options: ["Over-evaluation", "Under-evaluation (Ava-mulyan)", "Otherwise-evaluation", "Equitable evaluation"], correct: 1, exp: "Under-evaluation (Ava-mulyan) is judging someone's worth below their actual capability." },
+                { q: "What is the difference between 'Guidance' and 'Care'?", options: ["Guidance is for the Body; Care is for the Self", "Guidance is for the Self; Care is for the Body", "Guidance is monetary; Care is verbal", "There is no difference"], correct: 1, exp: "Care is nurturing the physical body. Guidance is helping the Self attain right understanding." },
+                { q: "What is 'Justice' (Nyaya) in a relationship?", options: ["Courtroom battles", "Recognizing, fulfilling, and rightly evaluating values leading to mutual happiness", "Enforcing uniform rules", "Equalizing bank balances"], correct: 1, exp: "Justice is the recognition and fulfillment of values in relationships, leading to mutual happiness." },
+                { q: "Which feeling is considered the 'complete value' (Sampurna Mulya)?", options: ["Trust", "Respect", "Love (Prem)", "Gratitude"], correct: 2, exp: "Love is the feeling of relatedness to all units in existence, making it the complete value." },
+                { q: "Doubt on intention leads to what in relationships?", options: ["Peace", "Anger and conflict", "Trust", "Clarity"], correct: 1, exp: "When we doubt another's intention, it immediately triggers defensive mechanisms and anger." },
+                { q: "What are 'Society', 'Crowd', and 'Battlefield' in interactions?", options: ["Urban planning terms", "States of relationship: mutual fulfillment, coexistence without purpose, and conflict", "Political strategies", "Historical stages of evolution"], correct: 1, exp: "These represent states of relationship: Society (fulfillment), Crowd (indifference), and Battlefield (war)." },
+                { q: "Can we ensure continuous happiness from favorable feelings of others?", options: ["Yes", "No, because external feedback is temporary and variable", "Yes, receiving compliments is ideal", "No, praise damages health"], correct: 1, exp: "Relying on others' behavior leaves our happiness conditional and temporary." },
+                { q: "What is 'otherwise-evaluation' (Amulyan)?", options: ["Evaluating someone as they are", "Evaluating someone differently than what they are", "Ignoring someone", "Assessing financial status"], correct: 1, exp: "Otherwise-evaluation is judging a person based on parameters unrelated to their true Self." },
+                { q: "What is the foundational value in any human relationship?", options: ["Respect", "Trust (Vishwas)", "Love", "Gratitude"], correct: 1, exp: "Trust is the foundational value. Without it, no relationship can be sustained." },
+                { q: "Evaluating someone more than what they are is called:", options: ["Over-evaluation (Adhi-mulyan)", "Under-evaluation", "Otherwise-evaluation", "Right evaluation"], correct: 0, exp: "Over-evaluation (Adhi-mulyan) is placing an exaggerated value on someone, causing future disappointment." },
+                { q: "What is 'Affection' (Sneha)?", options: ["The feeling of being related to the other", "The feeling of responsibility to nurture", "Right evaluation", "The desire to dominate"], correct: 0, exp: "Affection is the acceptance of the other as being related to oneself." },
+                { q: "What is 'Reverence' (Pujyata)?", options: ["The feeling of acceptance for excellence", "Responsibility to guide", "Recognizing support", "Affection for elders"], correct: 0, exp: "Reverence is the feeling of acceptance and respect for those who have achieved excellence." },
+                { q: "What is 'Gratitude' (Kritagyata)?", options: ["Feeling of thankfulness for those who helped in my development", "Excellence recognition", "Relatedness", "Nurturing the body"], correct: 0, exp: "Gratitude is the feeling of acceptance for those who have made efforts for my development." },
+                { q: "The minimum content of respect is:", options: ["Similarity of purpose, program, and potential", "Social status", "Financial background", "Physical strength"], correct: 0, exp: "Respect starts with recognizing that on the level of Self, we all share the same purpose and potential." },
+                { q: "Which feeling is the 'complete value' in human relationships?", options: ["Trust", "Love", "Respect", "Gratitude"], correct: 1, exp: "Love (Prem) is the complete value, representing unconditional relationship with all." },
+                { q: "Anger arises when we assume the other person:", options: ["Lacked the skill", "Intentionally wanted to hurt us", "Was distracted", "Had a physical accident"], correct: 1, exp: "We get angry when we doubt their intention and assume they broke our trust deliberately." },
+                { q: "What is a 'response' rather than a 'reaction'?", options: ["An action driven by right understanding, without anger", "An impulsive physical defense", "Fleeing the situation", "An action driven by fear"], correct: 0, exp: "A response is based on right understanding and calm observation, whereas a reaction is an impulsive reflex." },
+                { q: "The goal of human society (Manav Lakshya) includes:", options: ["Samadhan, Samridhi, Abhay, Sah-astitva", "Power, Wealth, Position, Prestige", "Industry, Agriculture, Commerce, Judiciary", "Education, Science, Arts, Technology"], correct: 0, exp: "The four societal goals are Samadhan (right understanding), Samridhi (prosperity), Abhay (trust), and Sah-astitva (co-existence)." },
+                { q: "Abhay (Fearlessness) in society is achieved through:", options: ["High police numbers", "Mutual trust and relationship from family to world family", "Strict courts", "Nuclear deterrence"], correct: 1, exp: "Abhay is created when trust becomes the foundational operating system of the entire society." },
+                { q: "In UHV, the basic unit of society is:", options: ["The individual", "The family", "The nation", "The global union"], correct: 1, exp: "The family is the basic unit of human society where values are naturally learned and practiced." },
+                { q: "Evaluating someone based on physical features or cast/creed is an example of:", options: ["Right evaluation", "Otherwise-evaluation (Amulyan)", "Over-evaluation", "Under-evaluation"], correct: 1, exp: "Judging someone based on material/physical parameters (body, wealth, caste) is otherwise-evaluation." },
+                { q: "Which value ensures that we do not exploit other human beings?", options: ["Sanyam", "Justice (Nyaya)", "Health", "Suvidha"], correct: 1, exp: "Justice in relationships ensures mutual fulfillment and prevents exploitation." },
+                { q: "What are the dimensions of Universal Human Order?", options: ["Five dimensions of human system (Education, Health, Production, Justice, Exchange)", "Trading networks", "Strict state codes", "Global military pacts"], correct: 0, exp: "The five dimensions include Education-Sanskar, Health-Sanyam, Production-Work, Justice-Preservation, and Exchange-Storage." },
+                { q: "The program to ensure mutual happiness is based on:", options: ["Right evaluation and value fulfillment in relationships", "Signing financial agreements", "Ignoring small family disputes", "Earning maximum money"], correct: 0, exp: "Relationship values (Trust, Respect, etc.) fulfilled through right evaluation ensure mutual happiness." }
+            ],
+            3: [
+                { q: "What are the four orders of nature discussed in UHV?", options: ["Physical, Pranic, Animal, and Human", "Solid, Liquid, Gas, and Plasma", "Mineral, Plant, Insect, and Aquatic", "Microscopic, Terrestrial, Atmospheric, Cosmic"], correct: 0, exp: "Nature consists of four orders: Physical (material), Pranic (plant/bio), Animal, and Human." },
+                { q: "How are the first three orders of nature interrelated?", options: ["Constant conflict", "Mutually fulfilling and in harmony", "They depend on human management", "Disconnected laws"], correct: 1, exp: "The Physical, Pranic, and Animal orders naturally interact in mutual fulfillment and balance." },
+                { q: "Why is there currently a crisis of ecology/pollution?", options: ["Physical order is depleted", "Human beings lack right understanding, acting only for physical consumption", "Animals overpopulated", "Natural laws changed"], correct: 1, exp: "Environmental crises arise because the human order acts without right understanding, over-exploiting nature." },
+                { q: "What is 'Self-regulation' (Sanyam) in UHV?", options: ["External security", "The feeling of responsibility in the Self for nurturing, protection, and right utilization of the Body", "Extreme fasting", "Autonomous bodily operation"], correct: 1, exp: "Sanyam is the Self's internal feeling of responsibility toward keeping the body healthy." },
+                { q: "What is the true definition of a healthy Body ('Swasthya')?", options: ["Muscular dominance", "Body acting according to the Self, with parts in harmony", "No need for food", "Vitamins reliance"], correct: 1, exp: "Swasthya is the physical equilibrium of the body when aligned with the instructions of the Self." },
+                { q: "What does 'co-existence' (Sah-astitva) mean?", options: ["Survival of the fittest", "All units of nature submerged in space, existing in harmony", "Forced legal cooperation", "Dividing resources with physical borders"], correct: 1, exp: "Co-existence means all active units are submerged in and supported by the all-pervading Space." },
+                { q: "What are the three defining aspects of 'Space'?", options: ["Hot, dense, expanding", "All-pervading, transparent, and activityless (continuous)", "Solid, molecular, colored", "Imaginary, temporary"], correct: 1, exp: "Space is everywhere (all-pervading), permits light (transparent), and contains no active movement (activityless)." },
+                { q: "What is 'Excellence' (Pratibha)?", options: ["High corporate ranks", "Understanding harmony at all four levels and living in alignment with it", "Perfect grades in academic exams", "Rare artistic skills"], correct: 1, exp: "Excellence is the state of realizing and living in harmony across all four levels of existence." },
+                { q: "Why is 'Competition' different from 'Excellence'?", options: ["Competition makes us rich", "Competition compares with others; excellence strives for absolute inner harmony", "Competition is cooperative", "There is no difference"], correct: 1, exp: "Competition focuses on outperforming others, whereas excellence focuses on achieving one's own potential in harmony." },
+                { q: "What is 'Professional Ethics' in UHV?", options: ["Business legal loopholes", "Ethical conduct of a professional conducive to the universal human order", "Unconditional loyalty to standard profit margins", "Eliminating small local competitors"], correct: 1, exp: "Professional ethics is utilizing right understanding to make decisions that nurture human society and nature." },
+                { q: "What is the root cause of corruption in professional life?", options: ["Strict auditing frameworks", "Lack of value-based education and a world-view of animal consciousness", "Low salaries", "Urban overpopulation"], correct: 1, exp: "Corruption occurs when humans adopt animal consciousness, prioritizing wealth accumulation over relationships and ethics." },
+                { q: "What are the four societal goals (Manav Lakshya)?", options: ["Power, Prestige, Position, physical wealth", "Right understanding (Self), Prosperity (Family), Fearlessness (Society), Co-existence (Nature)", "Production, Trade, Legislation, Judiciary", "Skill acquisition, Degrees, Travel, Savings"], correct: 1, exp: "The societal goals are Samadhan in individuals, Samridhi in families, Abhay in society, and Sah-astitva in nature." },
+                { q: "What is the role of 'Human Education-Sanskar'?", options: ["Physical domination", "To facilitate right understanding and help students live in harmony", "Preparing for corporate stress", "Enforcing absolute physical silence"], correct: 1, exp: "Education-Sanskar enables the student to understand harmony and commit to living in it." },
+                { q: "Which activity of the 'Self' ('I') connects it to behavior and work?", options: ["Digestion", "Imagination (Desire, Thought, Expectation)", "Heartbeat", "Cell division"], correct: 1, exp: "Our imagination (desires, thoughts, expectations) directly drives our behavior and work." },
+                { q: "How does the 'Universal Human Order' begin?", options: ["Individual and family level, extending globally", "Strict international treaties", "Enforced global police states", "Unified central database"], correct: 0, exp: "Universal Human Order is built bottom-up, starting from the individual to family, village, and finally the world." },
+                { q: "What are the three activities of the Pranic (Bio) Order?", options: ["Growth, Respiration, Composition/Decomposition", "Selection, Desiring, Thought", "Knowing, Assuming, Recognizing", "None"], correct: 0, exp: "The Pranic Order is characterized by growth, respiration, and material composition/decomposition." },
+                { q: "The activity of 'Knowing' (Janna) is present in which order?", options: ["Physical Order", "Pranic Order", "Animal Order", "Human Order"], correct: 3, exp: "Only the Human Order possesses the potential for complete 'Knowing' (right understanding)." },
+                { q: "What are 'units' in existence?", options: ["Infinite points of empty space", "Active, bounded, and self-organized entities of nature", "Mathematical coordinates", "Imaginary vectors"], correct: 1, exp: "Units are bounded, active, and self-organized entities (material or conscious) existing in space." },
+                { q: "The relation between Space and Units is that:", options: ["Units are submerged in Space", "Space is created by Units", "Units destroy Space", "They cannot coexist"], correct: 0, exp: "All units of nature are submerged in Space, allowing them to interact and coexist." },
+                { q: "What is 'Mutual Fulfillment' (Paraspar Purakta)?", options: ["Exploitation of materials", "Cooperative interaction where units nurture each other", "Earning maximum trade margins", "Enforced division of properties"], correct: 1, exp: "Mutual fulfillment is the natural law where different orders support and enrich one another." },
+                { q: "Which order has only the activity of 'Composition/Decomposition'?", options: ["Physical Order", "Pranic Order", "Animal Order", "Human Order"], correct: 0, exp: "The Physical Order (materials, minerals) possesses only composition and decomposition activities." },
+                { q: "What does 'I am the Seer (Drashta)' mean?", options: ["I see only through my physical eyes", "I am the one who understands and observes", "I am a passive physical receiver", "I am invisible to others"], correct: 1, exp: "Drashta means the Self is the conscious entity that observes, analyzes, and understands." },
+                { q: "What does 'I am the Doer (Karta)' mean?", options: ["My hands perform actions automatically", "The Self is the decision-maker who chooses and directs actions", "My body is independent of my choices", "I am driven by external chemical stimuli"], correct: 1, exp: "Karta means the Self is the conscious decision-maker initiating all actions through the body." },
+                { q: "What does 'I am the Enjoyer (Bhokta)' mean?", options: ["The physical body enjoys food and material comfort", "The Self experiences the pain or pleasure resulting from actions", "I only enjoy sensory inputs", "None of the above"], correct: 1, exp: "Bhokta means the Self is the ultimate conscious entity that experiences the feelings of happiness or unhappiness." },
+                { q: "In the context of 'Sanyam', the Body is considered:", options: ["The master of the Self", "An instrument of the Self", "An independent chemical entity", "An obstacle to happiness"], correct: 1, exp: "The body is a material instrument of the Self, utilized to express behavior and work." },
+                { q: "Ethical decision-making in professional life is guided by:", options: ["Universal Human Values and Right Understanding", "Commercial guidelines and profit metrics", "State political alignments", "Competitive comparison with peers"], correct: 0, exp: "Professional ethics is naturally guided by right understanding and universal human values." },
+                { q: "Transition to value-based living is a transition from:", options: ["Skills to technical values", "Jiv Chetna (animal consciousness) to Manav Chetna (human consciousness)", "Physical wealth to complete poverty", "State rules to private networks"], correct: 1, exp: "The critical human transition is moving from animal consciousness (Jiv Chetna) to human consciousness (Manav Chetna)." },
+                { q: "The primary purpose of a 'Profession' should be:", options: ["Maximizing individual wealth", "Participation in the universal human order for mutual fulfillment", "Gaining superior social authority", "Outperforming competitors"], correct: 1, exp: "Profession is a human's participation in society to produce and exchange facilities, ensuring mutual fulfillment." },
+                { q: "Corruption in systems is fundamentally an issue of:", options: ["Weak technical security", "Lack of values and right understanding in individuals", "Slow computers", "Low regulatory budgets"], correct: 1, exp: "Corruption is a human value deficit. Without right understanding, strict laws cannot curb it." },
+                { q: "A humanistic constitution ensures:", options: ["Domination of human order over the first three orders", "Mutual fulfillment and justice for all human beings and nature", "Strict financial limits on families", "Enforced uniformity of behavior"], correct: 1, exp: "A humanistic constitution provides structural frameworks for mutual fulfillment among all humans and preservation of nature." }
+            ]
+        };
 
-            // 2024 - Part III (16 Marks)
-            {
-                year: 2024, type: 'long', marks: 16,
-                question: "What are the activities in the self? What are the sources of content of our imaginations and what are their Implications? Explain using suitable diagram and examples in details.",
-                answer: `<div class="space-y-4">
-                    <p>The human entity is not merely a biological organism; it is an intricate, inextricably linked co-existence of the material Body and the conscious Self. The activities of the Self are profoundly distinct from physiological processes; they operate continuously, transcending physical states like sleep, and represent the very core of human consciousness. These continuous activities collectively formulate what is termed "imagination," which consists of an endless stream of Desires, Thoughts, and Expectations.</p>
-                    <p>The Self operates through highly sophisticated mechanisms of knowing, assuming, recognizing, and fulfilling. While the physical body merely recognizes and fulfills, the Self uniquely possesses the capacity to assume and know. The content of a person's imagination directly dictates their internal state of harmony or contradiction. According to the UHV framework, this imagination is fueled by three primary sources, each carrying vastly different implications for the human experience:</p>
-                    <ol class="list-decimal pl-5 space-y-2">
-                        <li><b>Preconditioning (Sanskar):</b> This source involves the multitude of assumptions, prejudices, and beliefs absorbed from society, culture, or upbringing without rigorous internal verification. Operating from preconditioning means living a life scripted entirely by others. If a person operates under the preconditioned belief that driving a luxury vehicle equates to societal respect, their desires and thoughts will obsessively center around acquiring that vehicle, irrespective of the ethical cost.</li>
-                        <li><b>Sensation:</b> This source is derived directly from the inputs of the five physical senses. When imagination is driven heavily by sensation, the Self attempts to extract continuous happiness from temporary physical interactions. Because sensory inputs are transient and biological receptors inevitably experience fatigue, relying on them creates a vicious cycle of temporary excitement followed by profound deprivation, numbness, and an intensified craving for a stronger stimulus.</li>
-                        <li><b>Natural Acceptance:</b> This is the innate, unconditioned, and universal capacity within the Self to see what is existentially true and harmonious. It is the authentic, uncorrupted voice of the Self, reflecting intrinsic human values like trust, respect, and coexistence.</li>
-                    </ol>
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">Implications</h4>
-                    <p>The dominant source driving the imagination directly determines whether the individual exists in a state of enslavement (Partantrata) or self-organization (Svatantrata). If imagination is driven by unverified preconditioning or bodily sensation, the internal activities are erratic and frequently contradictory. This leads to chronic unhappiness and a state of complete enslavement to external circumstances and physical stimuli.</p>
-                    <p>Conversely, when imagination is rigorously evaluated against and guided by natural acceptance, all desires and thoughts become perfectly aligned. This alignment eliminates internal friction, creating profound internal harmony, resulting in a self-organized individual who experiences continuous happiness. The ultimate objective of UHV education, therefore, is to systematically facilitate self-exploration, enabling individuals to shift the source of their imagination from volatile preconditioning and sensation toward the absolute stability of natural acceptance.</p>
-                </div>`,
-                keywords: ["Desires, Thoughts, and Expectations", "Preconditioning (Sanskar)", "Sensation", "Natural Acceptance", "enslavement (Partantrata)", "self-organization (Svatantrata)"]
-            },
-            {
-                year: 2024, type: 'long', marks: 16,
-                question: "There is a proposal 'Differentiation is disrespect'. Explain different types of differentiations on the basis of 'body', 'physical facility' and 'beliefs' with suitable examples in each category.",
-                answer: `<div class="space-y-4">
-                    <p>Respect, defined within the UHV paradigm, is the right evaluation of a human being strictly on the basis of their reality as a conscious Self. When evaluation deviates from this existential reality and is instead predicated on superficial variables, it transforms into differentiation. Differentiation is fundamentally a form of disrespect because it denies the core similarities of purpose, program, and potential shared by all human beings. Society currently suffers from pervasive, systemic differentiation across three major axes, leading to massive societal fracturing:</p>
-                    
-                    <h4 class="font-bold text-slate-800 border-b pb-1">1. Differentiation on the basis of the Body</h4>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li><i>Age and Gender:</i> Society frequently operates on the flawed assumption that older individuals inherently possess more right understanding, or that one gender is functionally or intellectually superior to another. This leads to the systemic marginalization of youth and deeply entrenched gender inequalities that stifle human potential.</li>
-                        <li><i>Race and Physical Strength:</i> Evaluating an individual's worth based on skin color or physical prowess is perhaps the most visible form of bodily differentiation. This form of evaluation has historically led to the most egregious forms of societal exploitation, racism, and systemic violence, fundamentally denying the shared consciousness of the Self.</li>
-                    </ul>
+        // UI State Machine
+        let currentTab = "quiz"; // 'quiz' is now default opening tab
+        let currentQuizModule = 1;  
+        let currentQuestionIdx = 0;
+        let selectedOptionIdx = null;
+        let score = 0;
 
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">2. Differentiation on the basis of Physical Facility</h4>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li><i>Wealth:</i> Driven by the gross misunderstanding that "physical facility equals happiness," society relentlessly evaluates individuals by their economic net worth. A wealthy individual is over-evaluated and treated with false, obsequious reverence, while a poor individual is under-evaluated, marginalized, and stripped of basic human dignity.</li>
-                        <li><i>Post/Position:</i> Respect in the professional realm is frequently commanded through hierarchical power structures rather than earned through ethical competence. This creates a toxic environment of fear, sycophancy, and resentment rather than genuine trust and collaboration.</li>
-                    </ul>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">3. Differentiation on the basis of Beliefs</h4>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li><i>Isms and Sects:</i> This involves evaluating others based entirely on whether their preconditioning matches one's own. If another person subscribes to the same political ideology (e.g., capitalism vs. socialism) or religious sect, they are respected and deemed an ally; if not, they are vilified and deemed an enemy. This dangerous differentiation falsely assumes that acquired preconditioning is equivalent to absolute right understanding.</li>
-                    </ul>
-
-                    <p>These differentiations result in severe, intractable societal friction. Instead of a society moving collaboratively toward mutual fulfillment, differentiation creates a fragmented "Crowd" that eventually devolves into a "Battlefield." This battlefield is characterized by conflicting goals, exploitation, and the constant, violent struggle for dominance. True respect permanently dismantles these superficial barriers by acknowledging that every individual, regardless of their bodily attributes, bank balance, or ideological conditioning, is a conscious Self seeking continuous happiness.</p>
-                </div>`,
-                keywords: ["right evaluation", "superficial variables", "Age and Gender", "Race and Physical Strength", "Wealth", "Post/Position", "Isms and Sects", "Crowd", "Battlefield"]
-            },
-            {
-                year: 2024, type: 'long', marks: 16,
-                question: "Do you think that there is a need of 'Human Education-Sanskar' in current education system? Why do you think so? Explain the role of education in development of 'Undivided Society' and 'Universal Human Order' in details.",
-                answer: `<div class="space-y-4">
-                    <p>The prevailing global crises—ranging from catastrophic environmental degradation to intractable interpersonal and geopolitical conflict—are not merely political failures or technological shortcomings; they are profound symptoms of a massive deficit in human consciousness. Present education systems largely focus on intensive skill development tailored exclusively for the accumulation of physical facilities and market dominance, inadvertently promoting and entrenching animal consciousness. There is an urgent, existential need for "Human Education-Sanskar" to correct this disastrous trajectory.</p>
-                    
-                    <h4 class="font-bold text-slate-800 border-b pb-1">Role and Necessity of Human Education-Sanskar</h4>
-                    <p>Human Education-Sanskar refers to a holistic, value-based pedagogical approach designed to systematically develop right understanding and the unwavering commitment to live in harmony at all levels of existence. The transformative role of this education operates on two interdependent fronts:</p>
-                    <ol class="list-decimal pl-5 space-y-2">
-                        <li><b>Individual Transformation:</b> It facilitates rigorous self-exploration, enabling the student to critically evaluate societal preconditioning against their own natural acceptance. It shifts the individual's focus from seeking temporary excitement through sensory indulgence to achieving continuous happiness through right understanding and relational harmony.</li>
-                        <li><b>Societal Transformation:</b> As individuals transform, the fundamental building block of society—the family—ceases to be an economic unit and becomes a hub of mutual fulfillment.</li>
-                    </ol>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">Development of an Undivided Society (Akhand Samaj)</h4>
-                    <p>The progression toward an Undivided Society begins when individuals interact based on universal human values (trust, respect, affection) rather than sectarian differentiations. An undivided society operates organically without the artificial, conflict-inducing borders of race, wealth, or dogmatic belief systems. Education provides the foundational understanding that all human beings share the exact same existential purpose.</p>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">Development of a Universal Human Order (Sarvabhaum Vyawastha)</h4>
-                    <p>Furthermore, this value-based education scales the vision upward to establish a Universal Human Order. This order is the physical and systemic manifestation of harmony across all five vital dimensions of society (Education-Sanskar, Health-Self-regulation, Production-Work, Justice-Preservation, and Exchange-Storage) extending from the single family unit to the entire world family.</p>
-                    <p>In this enlightened order, production systems are cyclic and mutually enriching for nature, justice ensures mutual happiness and relational repair rather than punitive retribution, and exchange is based on mutual fulfillment rather than maximum profit extraction. Human Education-Sanskar is the only viable, long-term mechanism to catalyze this shift from a fragmented, warring crowd to a harmonious, universal order.</p>
-                </div>`,
-                keywords: ["animal consciousness", "Human Education-Sanskar", "right understanding", "Individual Transformation", "Societal Transformation", "Undivided Society (Akhand Samaj)", "Universal Human Order (Sarvabhaum Vyawastha)"]
-            },
-            {
-                year: 2024, type: 'long', marks: 16,
-                question: "What do you mean by competence in professional Ethics as per the proposal? Elaborate on prevalent and proposed approaches to 'Ethics and Professional Ethics' with suitable examples.",
-                answer: `<div class="space-y-4">
-                    <p>Professional ethics cannot be artificially decoupled from personal ethics; both are natural, inevitable expressions of an individual's level of right understanding. Competence in professional ethics, according to the UHV proposal, is the seamless manifestation of right understanding into a professional's daily behavior and specialized work. It signifies that a professional uses their advanced technical skills not merely to maximize corporate profit, but to facilitate mutual fulfillment with other human beings and mutual prosperity with nature.</p>
-                    
-                    <h4 class="font-bold text-slate-800 border-b pb-1">Prevalent Approaches to Ethics</h4>
-                    <p>The current societal paradigm desperately attempts to enforce ethics through heavy-handed external mechanisms. This involves creating incredibly stringent codes of conduct, implementing pervasive compliance monitoring, and establishing a rigid system of rewards and harsh punishments (incentives and disincentives).</p>
-                    <p>However, these measures act as mere superficial band-aids. If a professional's core assumption remains that "wealth equals happiness" (the hallmark of animal consciousness), their highly trained imagination will continually seek complex loopholes in the regulatory framework to accumulate more wealth. This explains the paradox of why, despite increasingly strict global anti-corruption laws and massive compliance departments, corporate malpractices continue to grow exponentially. External constraints absolutely cannot sustainably control an unverified, sensation-driven human imagination.</p>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">Proposed UHV Approach to Ethics</h4>
-                    <p>The UHV proposal posits that true professional ethics cannot be legislated into existence; they must be developed and nurtured from within. The approach focuses on cultivating ethical competence through deep self-exploration and the profound realization of co-existence.</p>
-                    <p>When a professional comprehends that their own continuous happiness is inextricably linked to the well-being of the larger society and the maintenance of ecological balance, ethical conduct becomes their natural acceptance. For example, a software engineer with true ethical competence will outright refuse to design algorithms that exploit user psychological vulnerabilities for engagement, not because they fear legal repercussions or job loss, but because such exploitative actions violently violate their natural acceptance for mutual fulfillment. Therefore, the only fool-proof measure to ensure professional ethics is to integrate comprehensive value education into all professional training, ensuring that technical skills are always subordinated to an awakened human consciousness.</p>
-                </div>`,
-                keywords: ["seamless manifestation of right understanding", "enforce ethics through heavy-handed external mechanisms", "complex loopholes", "cannot sustainably control", "nurtured from within", "ethical competence", "natural acceptance"]
-            },
-
-
-            // ================= 2025 PAPER =================
-            // 2025 - Part I (2 Marks)
-            {
-                year: 2025, type: 'short', marks: 2,
-                question: "How can we understand the value of a pen? Is it in terms of price of it? Or is it in terms of its usability (participation)? Explain as per the definition of value.",
-                answer: `<p>According to the UHV framework, the "value" of any entity is strictly defined as its active participation in the larger order of which it is a part. The value of a pen is unequivocally not determined by its market price, which is an artificial, fluctuating economic construct. Instead, its true value lies entirely in its usability—its functional ability to facilitate writing. By enabling writing, it contributes to human communication and education, perfectly fulfilling its purpose and maintaining harmony within the larger human order.</p>`,
-                keywords: ["active participation", "not determined by its market price", "usability", "facilitate writing"]
-            },
-            {
-                year: 2025, type: 'short', marks: 2,
-                question: "What are the four levels of living as proposed in the content? Is it desirable to understand the harmony in living at all these levels?",
-                answer: `<p>The four interconnected levels of living are: the <b>Individual (Self)</b>, the <b>Family</b>, the <b>Society</b>, and <b>Nature/Existence</b>. It is absolutely desirable and existentially essential to understand harmony at all these levels because human existence is a web of continuous interaction; failure to achieve harmony at any one level inevitably and disastrously disrupts harmony at the other levels.</p>`,
-                keywords: ["Individual (Self)", "Family", "Society", "Nature/Existence", "web of continuous interaction", "disrupts harmony"]
-            },
-            {
-                year: 2025, type: 'short', marks: 2,
-                question: "Define self-exploration as a process for value education with a suitable sketch.",
-                answer: `<p>Self-exploration is a rigorous process of internal dialogue and investigation used to discover what is truly valuable. The process involves taking any given content purely as a <i>proposal</i>. This proposal is passed through two filters: <b>Natural Acceptance</b> on one side (verification at the thought level) and <b>Experiential Validation</b> on the other (verification at the living level). Experiential validation involves applying the proposal to behavior with humans (aiming for mutual happiness) and work with nature (aiming for mutual prosperity).</p>`,
-                keywords: ["internal dialogue", "proposal", "Natural Acceptance", "Experiential Validation", "mutual happiness", "mutual prosperity"]
-            },
-            {
-                year: 2025, type: 'short', marks: 2,
-                question: "Differentiate the needs of human beings (self and body) in terms of time and quantity.",
-                answer: `<p>In terms of <b>time</b>, the needs of the conscious Self (e.g., respect, happiness) are <b>continuous</b>; a person desires respect in every interaction at all times. The needs of the physical Body (e.g., food, rest) are <b>periodic and temporary</b>. In terms of <b>quantity</b>, the needs of the Self are <b>qualitative and infinite</b> (they cannot be measured or weighed), whereas the needs of the Body are strictly <b>quantitative and highly limited</b>.</p>`,
-                keywords: ["continuous", "periodic and temporary", "qualitative and infinite", "quantitative and highly limited"]
-            },
-            {
-                year: 2025, type: 'short', marks: 2,
-                question: "What is considered as the foundational value in relationships? Define it.",
-                answer: `<p><b>Trust (Vishwas)</b> is universally considered the foundational value upon which all human relationships are built. It is defined precisely as the unwavering assurance that every human being inherently intends to make themselves and the other person happy and prosperous. Without this baseline assurance, relationships devolve into mere transactional exchanges fraught with suspicion.</p>`,
-                keywords: ["Trust (Vishwas)", "foundational value", "unwavering assurance", "inherently intends"]
-            },
-            {
-                year: 2025, type: 'short', marks: 2,
-                question: "What do you mean by respect as per the proposal? What is the minimum content of respect?",
-                answer: `<p><b>Respect (Samman)</b> means the right evaluation of a human being based entirely on their true nature as a conscious Self, distinct from their physical body. The <b>minimum content of respect</b> is recognizing the absolute truth that "the other is similar to me" in terms of having the identical existential purpose, undertaking the exact same program for happiness, and possessing the same innate potential for realization.</p>`,
-                keywords: ["right evaluation", "conscious Self", "similar to me", "purpose", "program", "potential"]
-            },
-            {
-                year: 2025, type: 'short', marks: 2,
-                question: "State all the nine feelings as discussed in the proposal and differentiate between Guidance and Care.",
-                answer: `<p>The nine established feelings in relationships are Trust, Respect, Affection, Care, Guidance, Reverence, Glory, Gratitude, and Love. <b>Care (Mamata)</b> refers specifically to the feeling of deep responsibility for nurturing, protecting, and maintaining the <i>physical body</i> of the relative. <b>Guidance (Vatsalya)</b>, conversely, is the feeling of immense responsibility for ensuring right understanding and right feelings within the conscious <i>Self</i> of the relative.</p>`,
-                keywords: ["Trust, Respect, Affection, Care, Guidance, Reverence, Glory, Gratitude, and Love", "physical body", "conscious Self"]
-            },
-            {
-                year: 2025, type: 'short', marks: 2,
-                question: "What are the four orders of nature, and how are they interconnected?",
-                answer: `<p>The four orders are the Physical, Bio (Pranic), Animal, and Human orders. They are deeply interconnected through an inherent relationship of mutual fulfillment and self-regulation. For example, the physical order nurtures the bio order, which in turn feeds the animal order; animals enrich the soil upon death, maintaining a state of cyclical ecological abundance that supports all life.</p>`,
-                keywords: ["Physical", "Bio (Pranic)", "Animal", "Human", "mutual fulfillment", "cyclical ecological abundance"]
-            },
-            {
-                year: 2025, type: 'short', marks: 2,
-                question: "What do you mean by co-existence in existence?",
-                answer: `<p>Existence itself is defined as Co-existence, which translates structurally to "Units submerged in Space". It implies that the myriad active, limited units (both material and conscious) are inseparably immersed in an unlimited, all-pervading, inactive reality called Space. In this state of submergence, every unit interacts in an inherently harmonious, energized, and mutually fulfilling manner.</p>`,
-                keywords: ["Units submerged in Space", "active, limited units", "unlimited, all-pervading, inactive reality called Space", "mutually fulfilling manner"]
-            },
-            {
-                year: 2025, type: 'short', marks: 2,
-                question: "What do you understand by the terms 'holistic development' and 'universal human order'?",
-                answer: `<p><b>Holistic development</b> is the non-cyclic, permanent transformation of human consciousness, shifting a person from sensory-driven, exploitative living to living based entirely on right understanding and co-existence. The <b>Universal Human Order</b> is the macro-societal culmination of this development, characterized by perfect harmony across all five dimensions of society, extending organically from the basic family unit to encompass the entire globe.</p>`,
-                keywords: ["transformation of human consciousness", "right understanding and co-existence", "perfect harmony", "encompass the entire globe"]
-            },
-
-            // 2025 - Part II (6 Marks)
-            {
-                year: 2025, type: 'medium', marks: 6,
-                question: "Basic aspirations and current education systems.",
-                answer: `<p>The fundamental, universal aspirations of every human being, irrespective of their cultural or geographical background, are continuous happiness and prosperity. Currently, prevailing education systems largely fail to fulfill these aspirations because they operate under the disastrous assumption that physical facilities alone generate happiness. Consequently, modern education focuses almost entirely on technical skill development and competitive wealth accumulation, actively fostering animal consciousness.</p>
-                <p class="mt-2">This intense focus conflates true happiness (which is an internal state of harmony perfectly aligned with natural acceptance) with temporary excitement (which is sensory indulgence or superficial social validation). Because physical sensations are inherently temporary and inevitably lead to physiological fatigue, they cannot yield continuous happiness. True happiness is the innate nature of the Self when it operates with right understanding, rendering it entirely independent of external influences or material inputs.</p>`,
-                keywords: ["continuous happiness and prosperity", "animal consciousness", "temporary excitement", "physiological fatigue", "independent of external influences"]
-            },
-            {
-                year: 2025, type: 'medium', marks: 6,
-                question: "Animal consciousness vs. Human consciousness priority.",
-                answer: `<p>The core distinction between these two states of consciousness lies exclusively in the priority assigned to the three core requirements of living: Right Understanding, Relationship, and Physical Facilities.</p>
-                <ul class="list-disc pl-5 mt-2 space-y-2">
-                    <li><b>Animal Consciousness:</b> Gives absolute, unquestioned priority to Physical Facilities. Individuals operating in this state harbor the delusion that money can buy trust and respect. They systematically neglect right understanding and brutally exploit relationships to accumulate material wealth, viewing other humans merely as stepping stones or obstacles.</li>
-                    <li><b>Human Consciousness:</b> Prioritizes Right Understanding first, which then seamlessly facilitates the fulfillment of Values in Relationship, and finally pursues Physical Facilities strictly as required by the body. By understanding the profound interconnectedness of existence, a human conscious person utilizes physical facilities to nurture and strengthen relationships, rather than destroying relationships to hoard facilities.</li>
-                </ul>`,
-                keywords: ["Right Understanding, Relationship, and Physical Facilities", "absolute, unquestioned priority", "brutally exploit relationships", "Prioritizes Right Understanding first", "nurture and strengthen relationships"]
-            },
-            {
-                year: 2025, type: 'medium', marks: 6,
-                question: "Happiness vs Excitement; Wealth vs Prosperity.",
-                answer: `<p><b>Happiness</b> is the continuous, unshakable state of inner harmony occurring when an individual's imagination is perfectly aligned with their natural acceptance. <b>Excitement</b> is a highly transient state of favorable sensation derived from the body or external attention; it inevitably ends in fatigue and leaves a psychological void.</p>
-                <p class="mt-2">Similarly, <b>Wealth</b> is a purely objective, physical metric indicating the sheer accumulation of money or material goods. <b>Prosperity</b> is a deeply subjective, psychological feeling of possessing more physical facilities than are strictly necessary to fulfill the body's actual needs. A billionaire (possessing high wealth) operating in animal consciousness feels eternally deprived and thus lacks prosperity, whereas a farmer ensuring family needs through cyclical production feels deeply prosperous and naturally shares their surplus.</p>`,
-                keywords: ["inner harmony", "transient state", "objective, physical metric", "psychological feeling", "eternally deprived", "naturally shares their surplus"]
-            },
-            {
-                year: 2025, type: 'medium', marks: 6,
-                question: "Self-regulation, health, and the Self as seer, doer, enjoyer.",
-                answer: `<p>Self-regulation (Sanyam) is the profound responsibility taken by the conscious Self to nurture, protect, and rightly utilize the physical Body. Health (Swasthya) is the physical manifestation of this regulation, where the body's systems act in perfect harmony according to the Self's instructions. The two are inextricably causally linked: Sanyam causes Swasthya.</p>
-                <p class="mt-2">When one states, "I am the seer, doer, and enjoyer; the body is an instrument," it clearly delineates the existential roles. For example, when eating an apple: the Self <i>sees</i> (understands) that the body requires nutrition to function; the Self <i>does</i> (instructs the hands to lift the apple and the mouth to chew); and the Self <i>enjoys</i> (receives and processes the information of taste from the body's receptors). The body itself does not desire or enjoy the apple; it merely acts as the physical mechanism executing the conscious will of the Self.</p>`,
-                keywords: ["profound responsibility", "physical manifestation", "Sanyam causes Swasthya", "existential roles", "sees", "does", "enjoys"]
-            },
-            {
-                year: 2025, type: 'medium', marks: 6,
-                question: "Assumption 'Human Being = Body' leading to deprivation.",
-                answer: `<p>The assumption that "Human Being = Body" restricts an individual's worldview entirely to the physiological domain, stripping away the psychological and spiritual dimensions of existence. Because the needs of the body are temporary and physical, while the innate needs of the Self (happiness, respect) are continuous, substituting one for the other creates an existential void.</p>
-                <p class="mt-2">A sketch of this loop demonstrates a tragic cycle: <i>Feeling of Deprivation &rarr; Intense effort to accumulate physical facilities by any means &rarr; Temporary sensory excitement &rarr; Habituation/Fatigue &rarr; Renewed and deepened feeling of deprivation</i>. Because physical facilities fundamentally cannot satisfy the continuous psychological need for harmony, the individual assumes they just need <i>more</i> facilities. This sparks limitless, insatiable accumulation, rendering the feeling of deprivation permanent and driving the systemic exploitation of both society and nature.</p>`,
-                keywords: ["physiological domain", "existential void", "tragic cycle", "Habituation/Fatigue", "insatiable accumulation", "systemic exploitation"]
-            },
-            {
-                year: 2025, type: 'medium', marks: 6,
-                question: "Falling glass, Trust, Intention, and Competence.",
-                answer: `<p>When a glass slips from your own hand and shatters, you do not doubt your own intention; you immediately recognize it was a failure of competence (such as clumsiness or distraction). However, when a glass falls from someone else's hand, the immediate reaction is often anger, driven by the toxic assumption that they were careless or malicious, thus doubting their intention.</p>
-                <p class="mt-2">The UHV proposal of trust dictates that everyone's natural acceptance (intention) is fundamentally good; no one inherently wants to break the glass or cause harm. Doubting intention is the major cause of relationship problems because it instantly shifts the interaction from mutual assistance to adversarial accusation. The solution is to categorically trust the intention of the other while accurately evaluating their competence. If their competence is lacking, the response should be to offer gentle guidance to improve it, rather than unleashing destructive anger.</p>`,
-                keywords: ["doubt your own intention", "failure of competence", "doubting their intention", "adversarial accusation", "offer gentle guidance"]
-            },
-            {
-                year: 2025, type: 'medium', marks: 6,
-                question: "Types of evaluation in respect.",
-                answer: `<p>Respect requires right evaluation. The undesirable and highly destructive types of evaluation are:</p>
-                <ol class="list-decimal pl-5 mt-2 space-y-2">
-                    <li><b>Over-evaluation:</b> Judging someone to be greater than they are, leading to massive egoism and a false sense of superiority.</li>
-                    <li><b>Under-evaluation:</b> Judging someone to be lesser, causing deep depression, alienation, and a lack of self-worth.</li>
-                    <li><b>Otherwise-evaluation:</b> Judging someone entirely incorrectly based on prejudice, breeding deep, intractable mistrust.</li>
-                </ol>
-                <p class="mt-2">What is absolutely desirable is <b>Right Evaluation</b>, where the individual is assessed based on the profound realities of the Self. For example, recognizing that a junior colleague has the exact same existential purpose and potential as oneself, despite differing current technical competence, is desirable right evaluation and the true basis of respect.</p>`,
-                keywords: ["Over-evaluation", "Under-evaluation", "Otherwise-evaluation", "Right Evaluation", "existential purpose and potential"]
-            },
-            {
-                year: 2025, type: 'medium', marks: 6,
-                question: "Excellence vs Competition; Respect, Glory, and Reverence.",
-                answer: `<p><b>Excellence</b> is the internal, supreme achievement of right understanding and harmony, utterly independent of others' performance. <b>Competition</b> is the stressful striving to defeat or dominate others. Working for excellence requires collaboration; an excellent student enthusiastically helps peers master concepts. Competition requires withholding knowledge to maintain artificial superiority.</p>
-                <ul class="list-disc pl-5 mt-2 space-y-2">
-                    <li><b>Respect:</b> The baseline right evaluation that the other is existentially similar to me.</li>
-                    <li><b>Glory:</b> The feeling of immense appreciation toward those who have made significant, visible efforts to achieve excellence and right understanding.</li>
-                    <li><b>Reverence:</b> The deep, unshakeable feeling of honor toward those who have successfully achieved absolute excellence (continuous right understanding) and guide others toward it.</li>
-                </ul>`,
-                keywords: ["internal, supreme achievement", "defeat or dominate others", "collaboration", "Respect", "Glory", "Reverence"]
-            },
-            {
-                year: 2025, type: 'medium', marks: 6,
-                question: "Society, Crowd, and Battlefield.",
-                answer: `<p>These classifications define the macro-level aggregations of human beings based on goal alignment:</p>
-                <ul class="list-disc pl-5 mt-2 space-y-2">
-                    <li><b>Society:</b> Families living together with a shared, common goal of mutual fulfillment and prosperity.</li>
-                    <li><b>Crowd:</b> People co-existing physically but harboring wildly differing, individualistic goals, entirely lacking mutual fulfillment.</li>
-                    <li><b>Battlefield:</b> Individuals or groups living in active opposition, aggressively pursuing conflicting goals at the expense of others.</li>
-                </ul>
-                <p class="mt-2">Today, humanity largely vacillates between a Crowd (urban isolation chasing differing wealth metrics) and a Battlefield (ruthless corporate exploitation, warfare, and geopolitical strife) due to a shared focus on sensory accumulation. What is desirable is a true Society driven by the human goals of right understanding, prosperity, and co-existence.</p>`,
-                keywords: ["macro-level aggregations", "Society", "Crowd", "Battlefield", "shared focus on sensory accumulation", "true Society"]
-            },
-            {
-                year: 2025, type: 'medium', marks: 6,
-                question: "Human participation in ensuring mutual fulfillment.",
-                answer: `<p class="mb-2">The human order must consciously and carefully interact with the other three natural orders to ensure mutual fulfillment and ecological survival.</p>
-                <table class="w-full text-sm text-left border-collapse border border-slate-300">
-                    <thead class="bg-slate-100">
-                        <tr>
-                            <th class="border border-slate-300 px-3 py-2">Order of Nature</th>
-                            <th class="border border-slate-300 px-3 py-2">Human Participation for Mutual Fulfillment</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="border border-slate-300 px-3 py-2 font-semibold">Physical Order</td>
-                            <td class="border border-slate-300 px-3 py-2">Facilitating existence by maintaining constitutional integrity (e.g., preventing pollution).</td>
-                        </tr>
-                        <tr>
-                            <td class="border border-slate-300 px-3 py-2 font-semibold">Bio Order</td>
-                            <td class="border border-slate-300 px-3 py-2">Facilitating growth by ensuring a highly conducive environment (e.g., sustainable agriculture).</td>
-                        </tr>
-                        <tr>
-                            <td class="border border-slate-300 px-3 py-2 font-semibold">Animal Order</td>
-                            <td class="border border-slate-300 px-3 py-2">Facilitating nurturing by providing suitable physical environments without cruelty.</td>
-                        </tr>
-                        <tr>
-                            <td class="border border-slate-300 px-3 py-2 font-semibold">Human Order</td>
-                            <td class="border border-slate-300 px-3 py-2">Facilitating development of consciousness through Human Education-Sanskar.</td>
-                        </tr>
-                    </tbody>
-                </table>`,
-                keywords: ["Physical Order", "Bio Order", "Animal Order", "Human Order", "constitutional integrity", "Human Education-Sanskar"]
-            },
-            {
-                year: 2025, type: 'medium', marks: 6,
-                question: "Space, units, and three defining aspects.",
-                answer: `<p>Existence is comprehensively categorized into two fundamental realities: Units and Space. Units are the material and conscious entities (ranging from atoms to humans) that are limited in size and continuously active. Space is the all-pervading, unlimited, and completely inactive reality. "Submergence of units in space" implies units are completely inseparable from this transparent, unbounded medium.</p>
-                <ul class="list-disc pl-5 mt-2 space-y-2">
-                    <li><b>Energized in Space:</b> Every unit receives its fundamental energy and vitality through its co-existence with space.</li>
-                    <li><b>Self-organized in Space:</b> Units inherently organize into highly systematic molecular or planetary structures without any external enforcement.</li>
-                    <li><b>Recognizes & Fulfills:</b> Units inherently interact in a mutually fulfilling manner within the larger ecological and cosmic order.</li>
-                </ul>`,
-                keywords: ["Units and Space", "Submergence of units in space", "Energized in Space", "Self-organized in Space", "Recognizes & Fulfills"]
-            },
-            {
-                year: 2025, type: 'medium', marks: 6,
-                question: "Profession and professional ethics.",
-                answer: `<p>A profession is not merely a mechanism for wealth generation; it is a vital avenue for human participation in the larger societal order, utilized to fulfill the goal of prosperity through mutually enriching production or service. Professional ethics refers to the deep competence and commitment to practice one's profession strictly in accordance with right understanding and universal human values.</p>
-                <p class="mt-2">It signifies that advanced technical skills and expertise are governed by a humanistic worldview, ensuring that professional actions absolutely do not exploit human beings or degrade nature, but actively promote holistic societal harmony.</p>`,
-                keywords: ["human participation", "mutually enriching production or service", "right understanding and universal human values", "humanistic worldview", "promote holistic societal harmony"]
-            },
-
-            // 2025 - Part III (16 Marks)
-            {
-                year: 2025, type: 'long', marks: 16,
-                question: "Holistic development vs. Current trends in development.",
-                answer: `<div class="space-y-4">
-                    <p>The trajectory of modern human civilization is currently defined by conflicting interpretations of what constitutes true "development." An exhaustive analysis of current global trends versus the UHV proposal of holistic development reveals fundamental, existential disparities in goals, mechanisms, and outcomes.</p>
-                    
-                    <h4 class="font-bold text-slate-800 border-b pb-1">Current Trends in Development</h4>
-                    <p>Present developmental paradigms are anchored firmly in animal consciousness. The global architecture equates development almost exclusively with unlimited economic growth, GDP metrics, and the relentless accumulation of physical facilities. Because it operates under the dangerous delusion that "Human Being = Body," it desperately seeks to resolve infinite psychological voids through finite material consumption.</p>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li><i>Domination and Exploitation:</i> Instead of participating in the natural harmony of mutual fulfillment, the human order uses extreme technological prowess to dominate and ruthlessly exploit the physical, bio, and animal orders. This has generated catastrophic ripple effects, including severe climate change, rapid resource depletion, and systemic ecological collapse.</li>
-                        <li><i>Cyclic Delusion:</i> The current worldview assumes permanent, linear progress can be made in the material domain. However, material realities are intrinsically cyclic (formation and deformation). Thus, material development without conscious evolution is a perpetual, exhausting cycle that fundamentally fails to actualize genuine human potential, leading to societal burnout.</li>
-                    </ul>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">Holistic Development</h4>
-                    <p>Holistic development, as proposed by the UHV curriculum, redirects the focus completely from material accumulation to the profound transformation of human consciousness. It posits that true, non-cyclic, permanent development can only occur in the domain of the Self through the expansion of awareness and right understanding.</p>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li><i>Developing Human Potential:</i> The focus of human development must be aggressively dual-faceted: internally developing right understanding (the realization of co-existence) and right feeling (trust, respect) within the Self, and externally translating this understanding into definite, ethical human conduct.</li>
-                        <li><i>Mutual Fulfillment:</i> A holistically developed individual clearly recognizes the sequence of abundance in nature (Physical > Bio > Animal > Human) and leverages technology specifically to enrich these orders rather than extract from them.</li>
-                    </ul>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">Possible Approaches</h4>
-                    <p>To achieve these desired outcomes, society must pivot its foundational structure. The primary approach is the total, systemic overhaul of the education system into "Human Education-Sanskar," which prioritizes existential value verification over mere technical skill acquisition. Economically, models must transition rapidly to holistic technologies and production systems that perfectly mimic nature's cyclic, zero-waste patterns. Only through an internalized awakening to co-existence can humanity prevent ecological disaster and achieve the universal human order.</p>
-                </div>`,
-                keywords: ["animal consciousness", "Domination and Exploitation", "Cyclic Delusion", "transformation of human consciousness", "Developing Human Potential", "Mutual Fulfillment", "Human Education-Sanskar"]
-            },
-            {
-                year: 2025, type: 'long', marks: 16,
-                question: "Why is it important to study the Self? What are the activities of self and body? Describe the harmony in the Self with a few examples. How is behaviour and work decided by the self? Is it decided by the Body or by the Self? Which activity of the Self is connecting to behaviour and work? How can self-exploration help to ensure harmony in the Self? Explain with necessary and suitable examples.",
-                answer: `<div class="space-y-4">
-                    <p>The human being is an incredibly intricate co-existence of two entirely distinct realities: the material Body and the conscious Self ("I"). The overwhelming majority of societal dysfunction, mental health crises, and interpersonal conflicts stem from the failure to study and understand the Self, instead treating the human being as merely a highly sophisticated biological machine.</p>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1">Why Study the Self?</h4>
-                    <p>Studying the Self is paramount because the Self is the central processing unit of the entire human experience. The Self is the Seer (the entity that perceives and evaluates reality), the Doer (the entity that initiates decisions), and the Enjoyer (the entity that experiences deep happiness or sorrow). The Body is merely a complex instrument, entirely devoid of consciousness, feeling, or intention. Without deeply understanding the Self, one cannot comprehend the continuous nature of human desires, leading directly to the futile, destructive attempt to satisfy psychological needs with physical objects.</p>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">Activities of the Self and Body</h4>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li><i>Body:</i> The activities are strictly physical, chemical, and highly temporary (e.g., digesting, walking, breathing). The body operates entirely on the rigid mechanism of <i>recognizing and fulfilling</i> physical interactions, with no capacity for choice.</li>
-                        <li><i>Self:</i> The activities of the Self are continuous and profoundly psychological. They consist of <i>Imagination</i>, which is a complex amalgam of Desires, Thoughts, and Expectations. Crucially, the Self operates on the mechanisms of <i>knowing, assuming, recognizing, and fulfilling</i>. The capacity to assume means the Self can hold false beliefs, which causes disharmony.</li>
-                    </ul>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">Behavior and Work Decided by the Self</h4>
-                    <p>Behavior (interaction with other humans) and work (interaction with the rest of nature) are unequivocally decided by the Self, not the Body. The Body cannot "decide" to be respectful or to build a sustainable machine; it merely acts on the electrical and chemical signals provided by the Self. The specific activity connecting the inner realm of the Self to external behavior and work is <b>Expectation</b> (the final stage of imagination that selects the outward action based on underlying thoughts and desires).</p>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">Self-Exploration to Ensure Harmony</h4>
-                    <p>Harmony in the Self is successfully achieved when there is zero internal contradiction—when one's imagination is completely aligned with one's Natural Acceptance. Self-exploration facilitates this by initiating a rigorous internal dialogue.</p>
-                    <p>For instance, if the Self desires immense wealth (Desire), plots to defraud a colleague (Thought), and executes a lie (Expectation), the individual feels intense inner turmoil. By using self-exploration, the individual asks their Natural Acceptance: "Is cheating naturally acceptable?" The answer is invariably no. By updating the assumption based on right understanding, the desire shifts to mutual prosperity, entirely resolving the contradiction and restoring absolute harmony within the Self.</p>
-                </div>`,
-                keywords: ["Seer", "Doer", "Enjoyer", "Imagination", "knowing, assuming, recognizing, and fulfilling", "unequivocally decided by the Self", "Expectation", "zero internal contradiction"]
-            },
-            {
-                year: 2025, type: 'long', marks: 16,
-                question: "What is the building block for harmony in the society? Describe the human goal. Explain with examples. Explain how this is conducive to sustainable happiness and prosperity for all. Critically examine the goals of present-day society with respect to human goals. What is the outcome? List the dimensions (systems) that comprise a human order. Explain how each dimension contributes to the fulfilment of the human goal. How is the family order related to the universal human order?",
-                answer: `<div class="space-y-4">
-                    <p>The monumental transition from an isolated individual to a globally unified civilization relies on specific structural units and shared objectives. According to UHV, the foundational building block for all harmony in society is the <b>Family</b>.</p>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1">The Family as the Building Block</h4>
-                    <p>A cohesive society cannot be constructed directly from isolated individuals, as individuals deeply require a nurturing environment to learn values, responsibility, and interconnectedness. The family provides the essential relational laboratory where the nine universal feelings—ranging from basic trust to profound love—are first experienced, evaluated, and perfected. When individuals achieve harmony within themselves, they naturally establish harmony in the family. A massive cluster of such harmonious families naturally scales into a harmonious society.</p>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">The Human Goal vs. Present-Day Societal Goals</h4>
-                    <p>The comprehensive human goal consists of four inextricably linked objectives:</p>
-                    <ol class="list-decimal pl-5 space-y-2">
-                        <li><i>Right Understanding and Right Feeling</i> in every individual.</li>
-                        <li><i>Prosperity</i> in every family (the feeling of having more than required).</li>
-                        <li><i>Fearlessness (Trust)</i> in the society.</li>
-                        <li><i>Co-existence</i> in nature.</li>
-                    </ol>
-                    <p>Critically examining present-day society reveals a stark, terrifying inversion of these goals. Instead of right understanding, society aggressively fosters the assumption that wealth is paramount. Instead of true prosperity, families are driven by an obsession with limitless consumption, leading to chronic psychological deprivation. Instead of fearlessness, society is governed entirely by domination, exploitation, and mistrust (evidenced by massive defense budgets). Instead of co-existence with nature, humanity engages in ruthless extraction and pollution. The catastrophic outcome is that humanity is drifting rapidly away from a "Society" toward a global "Battlefield".</p>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">Dimensions of a Human Order</h4>
-                    <p>To actualize the human goal, a universal human order must establish five robust societal dimensions:</p>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li><i>Education-Sanskar:</i> Cultivates right understanding and ethical competence across generations.</li>
-                        <li><i>Health-Self-regulation:</i> Ensures the physical vitality of the populace without systemic over-medicalization.</li>
-                        <li><i>Production-Work:</i> Focuses heavily on generating physical facilities through cyclical, eco-friendly processes rather than extractive industries.</li>
-                        <li><i>Justice-Preservation:</i> Shifts from highly punitive legal systems to restorative frameworks that ensure mutual happiness in relationships.</li>
-                        <li><i>Exchange-Storage:</i> Prioritizes mutual fulfillment and equitable resource distribution over profit-driven market monopolies.</li>
-                    </ul>
-                    <p>The family order is the microcosm of the universal human order. The values practiced at the family level organically expand through societal structures, ultimately manifesting as a harmonious global civilization.</p>
-                </div>`,
-                keywords: ["Family", "relational laboratory", "Right Understanding", "Prosperity", "Fearlessness", "Co-existence", "terrifying inversion", "Battlefield", "Education-Sanskar", "Health-Self-regulation", "Production-Work", "Justice-Preservation", "Exchange-Storage"]
-            },
-            {
-                year: 2025, type: 'long', marks: 16,
-                question: "As per the prevailing world-view what are usually the expectations from a good professional career? Evaluate these in the context of the right understanding. What, according to you, can be a fool-proof measure to ensure professional ethics? Give justification. In spite of the increasing number and stringency of measures to curb corruption, this malaise is ever growing. Explain the reason for this situation.",
-                answer: `<div class="space-y-4">
-                    <p>The modern professional landscape is plagued by profound, systemic ethical compromises, largely stemming from a fundamentally flawed worldview regarding success and human purpose.</p>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1">Prevailing World-View and Expectations</h4>
-                    <p>Under the prevailing worldview—which operates heavily in animal consciousness—the primary expectations from a "good" professional career revolve around maximizing wealth, accumulating unchecked power, and securing ultimate sensual comforts. Success is mathematically quantified by the magnitude of an individual's salary, the prestige of their corporate position, and their ability to dominate market competitors.</p>
-                    <p>When evaluated critically in the context of <i>right understanding</i>, these expectations are existentially vacuous. They assume that human happiness can be directly purchased with physical facilities. Because physical facilities are temporary and psychological needs are continuous, highly successful professionals driven by this worldview frequently suffer from severe burnout, depression, and a perpetual sense of deprivation despite massive financial success.</p>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">The Failure of Current Measures</h4>
-                    <p>Governments and corporate entities continually attempt to curb rampant corruption and malpractice by increasing the stringency of compliance measures, imposing heavier fines, and establishing highly complex surveillance mechanisms (incentives and disincentives). Yet, the malaise of corruption continues to grow exponentially.</p>
-                    <p>The reason for this massive failure is that external regulations absolutely cannot police human imagination. If a professional's core internal assumption is that exploiting a client or bypassing environmental safety protocols is the fastest route to acquiring the wealth necessary for their happiness, they will inevitably utilize their immense intellectual competence to subvert external laws. The law acts as a fragile external barrier against an unhealed internal contradiction.</p>
-
-                    <h4 class="font-bold text-slate-800 border-b pb-1 mt-4">The Fool-Proof Measure for Professional Ethics</h4>
-                    <p>The only truly fool-proof measure to ensure professional ethics is the comprehensive development of internal ethical competence based entirely on right understanding. Ethical conduct must transition from being an externally enforced constraint to an internally driven <i>natural acceptance</i>.</p>
-                    <p>Through value education (Human Education-Sanskar), professionals engage in deep self-exploration to realize that their own continuous happiness is fundamentally impossible without ensuring mutual fulfillment with society and co-existence with nature. When a civil engineer deeply realizes the reality of co-existence, they will naturally refuse to use substandard materials in a bridge construction, not out of fear of a regulatory audit, but because endangering human lives violently contradicts their own inner harmony and natural acceptance. Ethical competence ensures that professional skills are wielded with a holistic perception of existence, permanently transforming the workplace from a battlefield of profit-maximization into a highly collaborative arena for mutual prosperity.</p>
-                </div>`,
-                keywords: ["maximizing wealth", "existentially vacuous", "cannot police human imagination", "intellectual competence", "fool-proof measure", "internal ethical competence", "natural acceptance"]
-            }
+        // Intro Loading Script Setup (Exactly 5 Seconds)
+        const loadSteps = [
+            "Right Understanding...",
+            "Relationship & Family...",
+            "Physical Facility Limitation...",
+            "Harmony in Nature...",
+            "Submergence in Space..."
         ];
 
-        function renderCharts() {
-            const ctxTopic = document.getElementById('topicChart').getContext('2d');
-            new Chart(ctxTopic, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Harmony in Self', 'Harmony in Family/Society', 'Harmony in Nature', 'Professional Ethics', 'Basic Concepts'],
-                    datasets: [{
-                        data: [25, 30, 15, 20, 10],
-                        backgroundColor: ['#4f46e5', '#818cf8', '#c7d2fe', '#312e81', '#a5b4fc'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right', labels: { font: { size: 12 } } },
-                        tooltip: { callbacks: { label: function(context) { return ' ' + context.label + ': ' + context.parsed + '%'; } } }
-                    }
-                }
-            });
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            
+            // Build summary accordion list
+            buildSyllabusSummary();
 
-            const ctxMarks = document.getElementById('marksChart').getContext('2d');
-            new Chart(ctxMarks, {
-                type: 'bar',
-                data: {
-                    labels: ['Part I (Short - 2M)', 'Part II (Medium - 6M)', 'Part III (Long - 16M)'],
-                    datasets: [{
-                        label: 'Marks per Section',
-                        data: [20, 48, 32],
-                        backgroundColor: '#6366f1',
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, max: 60, title: { display: true, text: 'Total Marks Allocated' } }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-        }
-
-        let keywordsHighlighted = false;
-
-        function renderQuestions(dataToRender) {
-            const container = document.getElementById('qa-container');
-            container.innerHTML = '';
-
-            if(dataToRender.length === 0) {
-                container.innerHTML = '<p class="text-slate-500 italic p-4 text-center">No questions found for this filter.</p>';
-                return;
-            }
-
-            dataToRender.forEach((q, index) => {
-                let finalAnswerHTML = q.answer;
+            // Run 5 second loading routine
+            let percent = 0;
+            const progressInterval = setInterval(() => {
+                percent += 2;
+                document.getElementById("loader-fill").style.width = `${percent}%`;
                 
-                if (keywordsHighlighted) {
-                    q.keywords.forEach(kw => {
-                        // Escape regex chars just in case, though keywords are simple strings here
-                        const escapedKw = kw.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                        const regex = new RegExp(`(${escapedKw})`, 'gi');
-                        finalAnswerHTML = finalAnswerHTML.replace(regex, '<span class="highlight-keyword">$1</span>');
-                    });
+                const stepIdx = Math.floor((percent / 100) * loadSteps.length);
+                if (loadSteps[stepIdx]) {
+                    document.getElementById("loader-status").innerText = loadSteps[stepIdx];
                 }
 
-                let badgeClass = 'bg-emerald-100 text-emerald-700';
-                if (q.marks === 6) badgeClass = 'bg-sky-100 text-sky-700';
-                if (q.marks === 16) badgeClass = 'bg-indigo-100 text-indigo-700';
-
-                const cardHTML = `
-                    <div class="question-card bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden print-break-inside-avoid">
-                        <button onclick="toggleAnswer(${index})" class="w-full px-6 py-4 text-left flex justify-between items-start focus:outline-none hover:bg-slate-50 transition-colors">
-                            <div class="flex-1 pr-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-xs font-bold px-2 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200">
-                                        ${q.year}
-                                    </span>
-                                    <span class="text-xs font-bold px-2 py-1 rounded ${badgeClass} border">
-                                        ${q.marks} Marks
-                                    </span>
-                                </div>
-                                <h3 class="font-medium text-slate-800 text-base leading-snug">Q: ${q.question}</h3>
-                            </div>
-                            <span id="icon-${index}" class="accordion-icon text-slate-400 text-xl font-bold transition-transform duration-200 mt-1">&#43;</span>
-                        </button>
-                        <div id="answer-${index}" class="answer-content px-6 pb-5 pt-2 text-slate-700 text-sm border-t border-slate-100 bg-slate-50/50 leading-relaxed">
-                            <h4 class="font-bold text-slate-800 mb-2 border-b border-slate-200 pb-1">BPUT Structured Answer:</h4>
-                            ${finalAnswerHTML}
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += cardHTML;
-            });
-        }
-
-        window.toggleAnswer = function(index) {
-            const answerDiv = document.getElementById(`answer-${index}`);
-            const iconSpan = document.getElementById(`icon-${index}`);
-            
-            if (answerDiv.classList.contains('active')) {
-                answerDiv.classList.remove('active');
-                iconSpan.innerHTML = '&#43;';
-                iconSpan.style.transform = 'rotate(0deg)';
-            } else {
-                answerDiv.classList.add('active');
-                iconSpan.innerHTML = '&#8722;';
-                iconSpan.style.transform = 'rotate(180deg)';
-            }
-        };
-
-        window.filterQuestions = function(year) {
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('bg-indigo-600', 'text-white');
-                btn.classList.add('bg-white', 'text-slate-700');
-                if(btn.dataset.filter == year) {
-                    btn.classList.remove('bg-white', 'text-slate-700');
-                    btn.classList.add('bg-indigo-600', 'text-white');
+                if (percent >= 100) {
+                    clearInterval(progressInterval);
+                    const loader = document.getElementById("intro-loader");
+                    loader.classList.add("opacity-0");
+                    setTimeout(() => {
+                        loader.classList.add("hidden");
+                    }, 700);
                 }
-            });
+            }, 100);
 
-            let filteredData = examData;
-            if (year !== 'all') {
-                filteredData = examData.filter(q => q.year === parseInt(year));
-            }
-            renderQuestions(filteredData);
-        };
-
-        window.toggleKeywords = function() {
-            keywordsHighlighted = !keywordsHighlighted;
-            const btn = document.getElementById('toggleKeywordsBtn');
-            
-            if (keywordsHighlighted) {
-                btn.classList.remove('bg-amber-100', 'text-amber-800');
-                btn.classList.add('bg-amber-500', 'text-white', 'shadow-inner');
-                btn.innerHTML = '&#128161; Keywords Active';
-            } else {
-                btn.classList.remove('bg-amber-500', 'text-white', 'shadow-inner');
-                btn.classList.add('bg-amber-100', 'text-amber-800');
-                btn.innerHTML = '&#128161; Highlight Keywords';
-            }
-            
-            const activeFilter = document.querySelector('.filter-btn.bg-indigo-600').dataset.filter;
-            filterQuestions(activeFilter);
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCharts();
-            renderQuestions(examData);
+            // Initialize Default Selected Tabs and load
+            switchTab(currentTab);
+            loadQuizQuestion();
         });
 
+        // Theme Toggle: Light to Dark (Default: Bright Mode)
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById("theme-icon");
+            
+            if (body.classList.contains("dark-mode")) {
+                body.classList.remove("dark-mode");
+                themeIcon.setAttribute("data-lucide", "moon");
+            } else {
+                body.classList.add("dark-mode");
+                themeIcon.setAttribute("data-lucide", "sun");
+            }
+            lucide.createIcons();
+        }
+
+        // Global Tab Switch Engine
+        function switchTab(targetTab) {
+            currentTab = targetTab;
+            
+            const btnSummary = document.getElementById("tab-btn-summary");
+            const btnQuiz = document.getElementById("tab-btn-quiz");
+            const secSummary = document.getElementById("summary-section");
+            const secQuiz = document.getElementById("quiz-section");
+
+            if (targetTab === "summary") {
+                secSummary.classList.remove("hidden");
+                secQuiz.classList.add("hidden");
+                btnSummary.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-indigo-600 text-white shadow-lg shadow-indigo-600/20";
+                btnQuiz.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white";
+            } else {
+                secSummary.classList.add("hidden");
+                secQuiz.classList.remove("hidden");
+                btnSummary.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white";
+                btnQuiz.className = "px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-indigo-600 text-white shadow-lg shadow-indigo-600/20";
+            }
+        }
+
+        // Build Accordion Dropdown Syllabus Items
+        function buildSyllabusSummary() {
+            [1, 2, 3].forEach(modNum => {
+                const targetEl = document.getElementById(`m${modNum}-summary-topics`);
+                targetEl.innerHTML = "";
+                
+                const topics = syllabusDirectory[modNum];
+                topics.forEach((topic, idx) => {
+                    const accordionContainer = document.createElement("div");
+                    accordionContainer.className = "themed-card rounded-2xl overflow-hidden transition-all duration-300";
+
+                    // The topic trigger button
+                    const btn = document.createElement("button");
+                    btn.className = "w-full text-left px-4 py-3 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-800 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white text-xs font-bold transition flex items-center justify-between group focus:outline-none";
+                    btn.onclick = () => toggleAccordion(modNum, idx);
+                    btn.id = `acc-btn-${modNum}-${idx}`;
+                    btn.innerHTML = `
+                        <span class="truncate pr-4">${idx + 1}. ${topic.title}</span>
+                        <i id="acc-icon-${modNum}-${idx}" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-white transition-transform duration-300 shrink-0"></i>
+                    `;
+
+                    // The dropdown expansion description box
+                    const descContainer = document.createElement("div");
+                    descContainer.id = `acc-content-${modNum}-${idx}`;
+                    descContainer.className = "accordion-content border-t border-slate-200 dark:border-white/5 bg-slate-900/[0.01] dark:bg-black/20";
+                    descContainer.innerHTML = `
+                        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed p-4 font-medium">${topic.desc}</p>
+                    `;
+
+                    accordionContainer.appendChild(btn);
+                    accordionContainer.appendChild(descContainer);
+                    targetEl.appendChild(accordionContainer);
+                });
+            });
+            lucide.createIcons();
+        }
+
+        // Accordion engine: toggles open, auto collapses others
+        function toggleAccordion(moduleNum, topicIdx) {
+            const targetContentId = `acc-content-${moduleNum}-${topicIdx}`;
+            const targetIconId = `acc-icon-${moduleNum}-${topicIdx}`;
+            
+            const targetContent = document.getElementById(targetContentId);
+            const targetIcon = document.getElementById(targetIconId);
+
+            const isAlreadyActive = targetContent.classList.contains("active");
+
+            // Query all accordion content areas across the entire page first to collapse them
+            const allContents = document.querySelectorAll(".accordion-content");
+            const allIcons = document.querySelectorAll("[id^='acc-icon-']");
+
+            allContents.forEach(el => el.classList.remove("active"));
+            allIcons.forEach(el => {
+                el.style.transform = "rotate(0deg)";
+                el.classList.remove("text-indigo-600", "dark:text-white");
+            });
+
+            // If it wasn't already expanded, open the targeted accordion
+            if (!isAlreadyActive) {
+                targetContent.classList.add("active");
+                targetIcon.style.transform = "rotate(180deg)";
+                targetIcon.classList.add("text-indigo-600", "dark:text-white");
+            }
+        }
+
+        // Select active quiz module
+        function selectQuizModule(moduleNum) {
+            currentQuizModule = moduleNum;
+            currentQuestionIdx = 0;
+            score = 0;
+            selectedOptionIdx = null;
+
+            // Update sub-tab button styles
+            [1, 2, 3].forEach(num => {
+                const pill = document.getElementById(`quiz-mod-${num}`);
+                if (num === moduleNum) {
+                    pill.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all bg-indigo-600 text-white shadow";
+                } else {
+                    pill.className = "px-4 py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-indigo-600 dark:hover:text-white";
+                }
+            });
+
+            // Adjust Active Panels
+            document.getElementById("quiz-active-view").classList.remove("hidden");
+            document.getElementById("quiz-results-view").classList.add("hidden");
+
+            loadQuizQuestion();
+        }
+
+        // Load Quiz question to UI
+        function loadQuizQuestion() {
+            const currentQuestions = quizDatabase[currentQuizModule];
+            const qData = currentQuestions[currentQuestionIdx];
+
+            // Reset panel state
+            selectedOptionIdx = null;
+            document.getElementById("feedback-dialog").classList.add("hidden");
+            document.getElementById("next-btn").classList.add("hidden");
+
+            // Update badge text
+            document.getElementById("quiz-module-badge").innerText = `Module ${currentQuizModule} Assessment`;
+            document.getElementById("current-q-num").innerText = currentQuestionIdx + 1;
+            document.getElementById("total-q-num").innerText = currentQuestions.length;
+
+            // Fill Progress
+            const progressPct = ((currentQuestionIdx) / currentQuestions.length) * 100;
+            document.getElementById("progress-bar-fill").style.width = `${progressPct}%`;
+
+            // Display question
+            document.getElementById("question-text").innerText = qData.q;
+
+            // Build Options Buttons
+            const optionsGrid = document.getElementById("options-grid");
+            optionsGrid.innerHTML = "";
+
+            qData.options.forEach((opt, idx) => {
+                const button = document.createElement("button");
+                button.className = "text-left p-5 rounded-2xl bg-slate-900/5 dark:bg-white/5 border border-slate-200 dark:border-white/5 hover:border-indigo-500/40 hover:bg-slate-900/10 dark:hover:bg-white/10 font-bold text-xs text-slate-800 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition duration-200 focus:outline-none flex gap-4 items-start";
+                button.onclick = () => selectQuizOption(idx);
+                
+                const label = String.fromCharCode(65 + idx);
+                button.innerHTML = `
+                    <span class="w-6 h-6 rounded-lg bg-slate-900/10 dark:bg-white/10 flex items-center justify-center text-xs text-slate-500 dark:text-slate-300 font-bold shrink-0">${label}</span>
+                    <span class="leading-relaxed">${opt}</span>
+                `;
+                optionsGrid.appendChild(button);
+            });
+        }
+
+        // Process user option choice
+        function selectQuizOption(idx) {
+            if (selectedOptionIdx !== null) return; // Prevent double choosing
+
+            selectedOptionIdx = idx;
+            const qData = quizDatabase[currentQuizModule][currentQuestionIdx];
+            const optionsGrid = document.getElementById("options-grid");
+            const buttons = optionsGrid.children;
+
+            const isCorrect = (idx === qData.correct);
+            if (isCorrect) score++;
+
+            // Highlight chosen item colors
+            for (let i = 0; i < buttons.length; i++) {
+                const btn = buttons[i];
+                btn.onclick = null; // Remove standard clicks
+                const labelSpan = btn.querySelector('span');
+
+                if (i === qData.correct) {
+                    btn.className = "text-left p-5 rounded-2xl border-2 border-emerald-500 bg-emerald-500/10 font-bold text-xs text-slate-800 dark:text-white flex gap-4 items-start";
+                    labelSpan.className = "w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center text-xs text-white font-bold shrink-0";
+                } else if (i === idx) {
+                    btn.className = "text-left p-5 rounded-2xl border-2 border-rose-500 bg-rose-500/10 font-bold text-xs text-slate-800 dark:text-white flex gap-4 items-start";
+                    labelSpan.className = "w-6 h-6 rounded-lg bg-rose-500 flex items-center justify-center text-xs text-white font-bold shrink-0";
+                } else {
+                    btn.className = "text-left p-5 rounded-2xl border border-slate-200 dark:border-white/5 opacity-40 font-bold text-xs text-slate-400 flex gap-4 items-start";
+                }
+            }
+
+            // Reveal assessment details dialogue
+            const dialog = document.getElementById("feedback-dialog");
+            const iconContainer = document.getElementById("feedback-icon-container");
+            const title = document.getElementById("feedback-title");
+            const text = document.getElementById("feedback-text");
+
+            dialog.classList.remove("hidden");
+            text.innerText = qData.exp;
+
+            if (isCorrect) {
+                dialog.className = "mb-8 p-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 transition-all duration-300 animate-slide-up";
+                iconContainer.className = "p-1.5 rounded-full bg-emerald-500 text-white shrink-0 flex items-center justify-center";
+                iconContainer.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i>`;
+                title.innerText = "Correct Verification!";
+            } else {
+                dialog.className = "mb-8 p-5 rounded-2xl border border-rose-500/20 bg-rose-500/10 text-rose-700 dark:text-rose-300 transition-all duration-300 animate-slide-up";
+                iconContainer.className = "p-1.5 rounded-full bg-rose-500 text-white shrink-0 flex items-center justify-center";
+                iconContainer.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4"></i>`;
+                title.innerText = "Incorrect Verification";
+            }
+
+            lucide.createIcons();
+
+            // Next Question or Summary Button toggle
+            const nextBtn = document.getElementById("next-btn");
+            const nextSpan = nextBtn.querySelector("span");
+            const isLast = (currentQuestionIdx === quizDatabase[currentQuizModule].length - 1);
+            nextSpan.innerText = isLast ? "View Module Summary" : "Next Question";
+            nextBtn.classList.remove("hidden");
+        }
+
+        // Navigate question index
+        function goToNextQuestion() {
+            const currentQuestions = quizDatabase[currentQuizModule];
+            if (currentQuestionIdx < currentQuestions.length - 1) {
+                currentQuestionIdx++;
+                loadQuizQuestion();
+            } else {
+                showQuizSummary();
+            }
+        }
+
+        // Generate module end summary
+        function showQuizSummary() {
+            const currentQuestions = quizDatabase[currentQuizModule];
+            document.getElementById("quiz-active-view").classList.add("hidden");
+            const summaryView = document.getElementById("quiz-results-view");
+            summaryView.classList.remove("hidden");
+
+            let modTitle = "Foundations of Value Education";
+            if (currentQuizModule === 2) modTitle = "Harmony in Human Life, Relationships & Society";
+            if (currentQuizModule === 3) modTitle = "Harmony in Nature & Professional Ethics";
+
+            document.getElementById("result-module-title").innerText = modTitle;
+            document.getElementById("result-score-current").innerText = score;
+            document.getElementById("result-score-total").innerText = currentQuestions.length;
+
+            const accuracy = Math.round((score / currentQuestions.length) * 100);
+            document.getElementById("result-accuracy").innerText = `${accuracy}%`;
+
+            const nextModBtn = document.getElementById("next-module-action-btn");
+            if (currentQuizModule < 3) {
+                nextModBtn.classList.remove("hidden");
+                nextModBtn.onclick = () => selectQuizModule(currentQuizModule + 1);
+            } else {
+                nextModBtn.classList.add("hidden");
+            }
+            lucide.createIcons();
+        }
+
+        function retryModule() {
+            selectQuizModule(currentQuizModule);
+        }
+
+        function goToNextModuleQuiz() {
+            if (currentQuizModule < 3) {
+                selectQuizModule(currentQuizModule + 1);
+            }
+        }
     </script>
 </body>
 </html>
