@@ -53,6 +53,7 @@
             background-color: var(--bg-main);
             color: var(--text-main);
             transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
         }
 
         /* Themed Glass Components */
@@ -126,7 +127,7 @@
             opacity: 0;
         }
         .accordion-content.active {
-            max-height: 800px; /* FIX: Increased height so it doesn't cut off on narrow phones */
+            max-height: 800px;
             opacity: 1;
         }
 
@@ -142,6 +143,62 @@
             background: rgba(120, 120, 120, 0.2);
             border-radius: 4px;
         }
+        
+        /* FIX: Increased summary explanation text size for better readability */
+        .summary-explanation {
+            font-size: 0.875rem !important;
+            line-height: 1.7 !important;
+            font-weight: 400;
+        }
+        
+        /* Start Quiz Button Styling */
+        .start-quiz-btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+        .start-quiz-btn:hover {
+            background: linear-gradient(135deg, #4338ca 0%, #5b21b6 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+        }
+        
+        /* Answer feedback colors - matches futuristic theme */
+        .answer-correct {
+            background: rgba(16, 185, 129, 0.1) !important;
+            border-color: #10b981 !important;
+        }
+        .answer-correct span:first-child {
+            background: #10b981 !important;
+            color: white !important;
+        }
+        .answer-correct span:last-child {
+            color: #10b981 !important;
+        }
+        
+        .answer-incorrect {
+            background: rgba(239, 68, 68, 0.1) !important;
+            border-color: #ef4444 !important;
+        }
+        .answer-incorrect span:first-child {
+            background: #ef4444 !important;
+            color: white !important;
+        }
+        .answer-incorrect span:last-child {
+            color: #ef4444 !important;
+        }
+        
+        .answer-disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .answer-disabled span:first-child {
+            background: rgba(120, 120, 120, 0.2) !important;
+            color: #6b7280 !important;
+        }
+        .answer-disabled span:last-child {
+            color: #6b7280 !important;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between overflow-x-hidden relative">
@@ -153,6 +210,7 @@
 
     <div id="intro-loader" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-6 transition-all duration-700">
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <!-- ENHANCED: More shooting stars for better loading screen effect -->
             <div class="shooting-star" style="top: 10%; right: 5%; animation-delay: 0s; animation-duration: 4s;"></div>
             <div class="shooting-star" style="top: 25%; right: 25%; animation-delay: 1.5s; animation-duration: 4.5s;"></div>
             <div class="shooting-star" style="top: 40%; right: 15%; animation-delay: 3s; animation-duration: 5s;"></div>
@@ -163,7 +221,6 @@
             <div class="shooting-star" style="top: 50%; right: 60%; animation-delay: 0.8s; animation-duration: 4.8s;"></div>
             <div class="shooting-star" style="top: 70%; right: 20%; animation-delay: 3.4s; animation-duration: 3.6s;"></div>
             <div class="shooting-star" style="top: 80%; right: 45%; animation-delay: 1.9s; animation-duration: 5.2s;"></div>
-            
             <div class="shooting-star" style="top: 20%; right: 80%; animation-delay: 0.3s; animation-duration: 3.2s;"></div>
             <div class="shooting-star" style="top: 65%; right: 5%; animation-delay: 2.8s; animation-duration: 4.7s;"></div>
             <div class="shooting-star" style="top: 85%; right: 30%; animation-delay: 1.2s; animation-duration: 5.1s;"></div>
@@ -216,6 +273,8 @@
                     </button>
                 </nav>
 
+                <!-- FIX: Removed notification system completely -->
+                
                 <button onclick="toggleTheme()" class="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm text-slate-600 dark:text-yellow-400 hover:scale-105 transition-all duration-200" title="Switch Theme">
                     <i id="theme-icon" data-lucide="moon" class="w-5 h-5"></i>
                 </button>
@@ -249,71 +308,95 @@
             <div id="quiz-card" class="themed-panel rounded-3xl p-6 sm:p-8 min-h-[450px]">
                 
                 <div id="quiz-active-view">
-                    <div class="flex justify-between items-center mb-6">
-                        <span id="quiz-module-badge" class="bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 font-bold text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full border border-indigo-500/20">Module 1 Evaluation</span>
-                        <div class="text-slate-600 dark:text-slate-400 text-xs">
-                            Assessed Card <span id="current-q-num" class="text-indigo-600 dark:text-white font-bold">1</span> of <span id="total-q-num">30</span>
+                    <!-- NEW: Start Quiz Button - Timer does NOT auto-start -->
+                    <div id="quiz-start-view" class="text-center py-12">
+                        <div class="w-20 h-20 bg-indigo-500/10 border-2 border-indigo-500/25 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600 dark:text-indigo-400 shadow-inner">
+                            <i data-lucide="play-circle" class="w-10 h-10"></i>
                         </div>
+                        <h2 class="text-2xl font-extrabold mb-2">Module <span id="start-module-num">1</span> Assessment</h2>
+                        <p class="text-slate-600 dark:text-slate-400 text-sm mb-8">Ready to test your understanding?</p>
+                        <button onclick="startQuizTimer()" class="start-quiz-btn text-white font-bold py-3.5 px-8 rounded-xl flex items-center justify-center gap-2 mx-auto">
+                            <span>Start Quiz</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
                     </div>
-
-                    <div class="w-full bg-slate-900/5 dark:bg-slate-950 h-1.5 rounded-full mb-8 border border-slate-200 dark:border-white/5 overflow-hidden">
-                        <div id="progress-bar-fill" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
-                    </div>
-
-                    <div class="mb-8">
-                        <h2 id="question-text" class="text-lg sm:text-xl font-bold leading-relaxed">Loading assessments...</h2>
-                    </div>
-
-                    <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
-
-                    <div id="feedback-dialog" class="hidden mb-8 p-5 rounded-2xl border transition-all duration-300 animate-slide-up">
-                        <div class="flex gap-3">
-                            <div id="feedback-icon-container" class="p-1.5 rounded-full text-white shrink-0 flex items-center justify-center"></div>
-                            <div>
-                                <h4 id="feedback-title" class="font-bold text-sm mb-1">Answer</h4>
-                                <p id="feedback-text" class="text-xs leading-relaxed"></p>
+                    
+                    <div id="quiz-questions-view" class="hidden">
+                        <div class="flex justify-between items-center mb-6">
+                            <span id="quiz-module-badge" class="bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 font-bold text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full border border-indigo-500/20">Module 1 Evaluation</span>
+                            <div class="text-slate-600 dark:text-slate-400 text-xs">
+                                Assessed Card <span id="current-q-num" class="text-indigo-600 dark:text-white font-bold">1</span> of <span id="total-q-num">30</span>
                             </div>
                         </div>
+
+                        <div class="w-full bg-slate-900/5 dark:bg-slate-950 h-1.5 rounded-full mb-8 border border-slate-200 dark:border-white/5 overflow-hidden">
+                            <div id="progress-bar-fill" class="bg-gradient-to-r from-indigo-500 to-cyan-400 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+
+                        <!-- Timer - Now starts only after clicking Start Quiz -->
+                        <div class="flex justify-end mb-4">
+                            <div class="bg-slate-900/5 dark:bg-white/5 rounded-xl px-4 py-2 text-xs">
+                                <i data-lucide="clock" class="w-4 h-4 inline text-slate-600 dark:text-slate-400"></i>
+                                <span id="question-timer">00:00</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <h2 id="question-text" class="text-lg sm:text-xl font-bold leading-relaxed">Loading assessments...</h2>
+                        </div>
+
+                        <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
+
+                        <div id="feedback-dialog" class="hidden mb-8 p-5 rounded-2xl border transition-all duration-300 animate-slide-up">
+                            <div class="flex gap-3">
+                                <div id="feedback-icon-container" class="p-1.5 rounded-full text-white shrink-0 flex items-center justify-center">
+                                    <i data-lucide="check" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h4 id="feedback-title" class="font-bold text-sm mb-1">Answer</h4>
+                                    <p id="feedback-text" class="text-xs leading-relaxed"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button id="next-btn" onclick="goToNextQuestion()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition duration-150 flex items-center gap-2">
+                                <span>Next Answer</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="flex justify-end">
-                        <button id="next-btn" onclick="goToNextQuestion()" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl transition duration-150 flex items-center gap-2">
-                            <span>Next Answer</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </button>
+                    <div id="quiz-results-view" class="hidden text-center py-8 max-w-lg mx-auto animate-slide-up">
+                        <div class="w-20 h-20 bg-indigo-500/10 border-2 border-indigo-500/25 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600 dark:text-indigo-400 shadow-inner">
+                            <i data-lucide="award" class="w-10 h-10"></i>
+                        </div>
+                        <h2 class="text-2xl font-extrabold mb-2">Module Evaluation Complete!</h2>
+                        <p id="result-module-title" class="text-slate-600 dark:text-slate-400 text-xs mb-8">Module assessment metrics completed.</p>
+
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <div class="themed-card p-5 rounded-2xl">
+                                <span class="block text-slate-600 dark:text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-1">Calculated Score</span>
+                                <span class="text-2xl font-extrabold"><span id="result-score-current">0</span>/<span id="result-score-total">30</span></span>
+                            </div>
+                            <div class="themed-card p-5 rounded-2xl">
+                                <span class="block text-slate-600 dark:text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-1">Accuracy Factor</span>
+                                <span id="result-accuracy" class="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">0%</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button onclick="retryModule()" class="flex-1 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-800 dark:text-white font-bold py-3.5 px-6 rounded-xl border border-slate-200 dark:border-white/10 transition flex items-center justify-center gap-2">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                                Retry Evaluation
+                            </button>
+                            <button onclick="goToNextModuleQuiz()" id="next-module-action-btn" class="flex-1 bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-400 hover:to-cyan-400 text-white font-bold py-3.5 px-6 rounded-xl transition flex items-center justify-center gap-2">
+                                <span>Next Module Exam</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                <div id="quiz-results-view" class="hidden text-center py-8 max-w-lg mx-auto animate-slide-up">
-                    <div class="w-20 h-20 bg-indigo-500/10 border-2 border-indigo-500/25 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600 dark:text-indigo-400 shadow-inner">
-                        <i data-lucide="award" class="w-10 h-10"></i>
-                    </div>
-                    <h2 class="text-2xl font-extrabold mb-2">Module Evaluation Complete!</h2>
-                    <p id="result-module-title" class="text-slate-600 dark:text-slate-400 text-xs mb-8">Module assessment metrics completed.</p>
-
-                    <div class="grid grid-cols-2 gap-4 mb-8">
-                        <div class="themed-card p-5 rounded-2xl">
-                            <span class="block text-slate-600 dark:text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-1">Calculated Score</span>
-                            <span class="text-2xl font-extrabold"><span id="result-score-current">0</span>/<span id="result-score-total">30</span></span>
-                        </div>
-                        <div class="themed-card p-5 rounded-2xl">
-                            <span class="block text-slate-600 dark:text-slate-400 text-[10px] font-semibold uppercase tracking-wider mb-1">Accuracy Factor</span>
-                            <span id="result-accuracy" class="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400">0%</span>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <button onclick="retryModule()" class="flex-1 bg-slate-900/5 dark:bg-white/5 hover:bg-slate-900/10 dark:hover:bg-white/10 text-slate-800 dark:text-white font-bold py-3.5 px-6 rounded-xl border border-slate-200 dark:border-white/10 transition flex items-center justify-center gap-2">
-                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                            Retry Evaluation
-                        </button>
-                        <button onclick="goToNextModuleQuiz()" id="next-module-action-btn" class="flex-1 bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-400 hover:to-cyan-400 text-white font-bold py-3.5 px-6 rounded-xl transition flex items-center justify-center gap-2">
-                            <span>Next Module Exam</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-
             </div>
         </section>
 
@@ -364,97 +447,12 @@
     </footer>
 
     <script>
-        // Expanded syllabus topic dataset (Academically detailed ~5 lines, deep PYQ alignment)
-        const syllabusDirectory = {
-            1: [
-                {
-                    title: "Value Education",
-                    desc: "The critical educational process designed to help individuals discover 'what to do' (values) and 'how to do it' (skills) in universal harmony. Value Education is not a set of moral dogmas, but a rational methodology leading from animal consciousness (Jiv Chetna)—focused solely on the accumulation of physical facilities—to human consciousness (Manav Chetna), facilitating mutual happiness and mutual prosperity across all levels of living."
-                },
-                {
-                    title: "Self-Exploration",
-                    desc: "An internal, evolutionary process of self-observation and value-discovery. It acts as a dialogical exploration between 'what I am' (my current behavior and state of being) and 'what I really want to be' (my natural acceptance). Every proposal in this curriculum is not to be accepted on authority but needs verification on one's own right, validating it in actual living and verifying it with natural acceptance."
-                },
-                {
-                    title: "Natural Acceptance",
-                    desc: "The innate, universal, and invariant faculty of human consciousness that recognizes harmony and relationship naturally. Unlike conditional acceptance—which is highly variable and depends on external preconditioning, sensory pleasures, or peer pressure—Natural Acceptance remains constant across all human beings, regardless of time, physical location, or cultural backgrounds."
-                },
-                {
-                    title: "Continuous Happiness (Sukh)",
-                    desc: "An ongoing qualitative state of internal harmony and equilibrium inside the conscious Self ('I'). Sukh is achieved when there is alignment and no internal contradictions within the desires, thoughts, and expectations of the Self. It stands in stark contrast to sensory excitement, which is temporary, transient, and leads to addiction or eventual physical exhaustion."
-                },
-                {
-                    title: "Prosperity (Samridhi)",
-                    desc: "The qualitative feeling of having and producing more than required physical facilities. Prosperity requires a human being to first identify the real quantitative limitations of their material Body, and secondly, to produce or possess an abundance of physical facility. Realizing this limitation prevents the limitless hoarding of materials and eliminates the feeling of deprivation."
-                },
-                {
-                    title: "Right Understanding (Samadhan)",
-                    desc: "The fundamental cognitive clarity that enables humans to observe and understand harmony as it naturally exists across all levels of existence (Self, Family, Society, Nature). Right Understanding is the foundational priority in human life; without it, we cannot correctly evaluate human relationships or identify the correct limits of physical facilities."
-                },
-                {
-                    title: "Physical Facilities (Suvidha)",
-                    desc: "Physical-chemical resources utilized to nurture, protect, and properly operate the material Body. In the UHV framework, Suvidha is recognized as necessary but incomplete for a human being. While animals are satisfied with physical facilities alone, humans require Right Understanding in the Self and Right Feelings in Relationships alongside Suvidha."
-                }
-            ],
-            2: [
-                {
-                    title: "Co-existence of Self ('I') & Body",
-                    desc: "The understanding that a human being is a co-existence of two distinct realities: the conscious Self ('I') and the material Body. The Self is qualitative, requiring continuous feelings of trust, respect, and peace; the Body is material and quantitative, needing temporary physico-chemical facilities. Confusing these two realities leads to trying to satisfy qualitative needs with physical facilities, which is impossible."
-                },
-                {
-                    title: "Trust (Vishwas)",
-                    desc: "The foundational value in relationships, defined as the unconditional clarity and assurance that the other person naturally wants my happiness and prosperity. Conflict and anger arise when we doubt the other's *intention* (which is always naturally for our well-being) because we are evaluating and reacting to their lack of *competence* (their external behaviors and mistakes)."
-                },
-                {
-                    title: "Respect (Samman) as Right Evaluation",
-                    desc: "Respect means 'Right Evaluation'—observing and accepting the other exactly as they are. Disrespect occurs when we deviate from this: Over-evaluation (Adhi-mulyan, judging someone above reality), Under-evaluation (Ava-mulyan, evaluating someone below reality), or Otherwise-evaluation (Amulyan, judging someone on non-essential factors like caste, gender, body, or wealth)."
-                },
-                {
-                    title: "Justice (Nyaya) in Relationships",
-                    desc: "Justice is the recognition, fulfillment, and right evaluation of values in human-to-human relationships. When values like Trust, Respect, and Affection are correctly observed and fulfilled, it leads to mutual happiness (Ubhay-tripti). This mutual fulfillment is the structural building block for social harmony and the elimination of exploitation."
-                },
-                {
-                    title: "Love (Prem) as the Complete Value",
-                    desc: "Love is the complete value (Sampurna Mulya) in human relationships, representing the feeling of unconditional relatedness to all units in existence. It starts within the family circle, extends systematically to the village, state, and ultimately manifests as a universal human family, allowing one to live in complete harmony without feelings of opposition."
-                },
-                {
-                    title: "Care and Guidance",
-                    desc: "Care is the internal feeling of responsibility to nurture and protect the physical-chemical operations of the Body. Guidance is the corresponding conscious responsibility of the Self to support and facilitate Right Understanding and value education within the Self ('I') of another human being, ensuring mutual growth."
-                },
-                {
-                    title: "Universal Human Order (Sarvabhaum Vyavastha)",
-                    desc: "The systemic global organization of humanity structured directly from family order to the world family. It is realized through the fulfillment of the five dimensions of human systems (Education, Health, Production, Justice, and Exchange) which satisfy societal goals: Samadhan (Right Understanding), Samridhi (Prosperity), Abhay (Trust), and Sah-astitva (Co-existence)."
-                }
-            ],
-            3: [
-                {
-                    title: "The Four Orders of Nature",
-                    desc: "The natural world consists of four distinct levels: Physical (material elements, soil), Pranic (plants, bio-life), Animal, and Human. The first three orders naturally co-exist in mutual fulfillment, nurturing each other. The Human order possesses potential for right understanding, but currently acts in exploitation of the other three orders due to a lack of values."
-                },
-                {
-                    title: "Existence as Co-existence (Sah-astitva)",
-                    desc: "The deep realization that existence is co-existence, wherein all bounded, active units (material and conscious) are submerged in the all-pervading, inactive, and transparent Space. Every unit is self-organized, energized, and naturally participates in relationships of mutual fulfillment, order, and co-existence with all other units."
-                },
-                {
-                    title: "Self-Regulation (Sanyam) & Health (Swasthya)",
-                    desc: "Sanyam is the feeling of responsibility in the conscious Self for the systematic nurturing, protection, and right utilization of the physical Body. Swasthya is the physical equilibrium of the body itself, characterized by organs working in harmony, and the body being ready to act as a proper instrument of the Self."
-                },
-                {
-                    title: "Professional Ethics",
-                    desc: "The ethical conduct of a professional that is conducive to the universal human order. It reflects the capability of a professional to make decisions that enrich human relationships and preserve nature. It marks a transition from a world-view of animal consciousness (exploitation) to human consciousness (mutual preservation)."
-                },
-                {
-                    title: "Humanistic Constitution",
-                    desc: "The structural, legal, and social framework of a society that guarantees mutual fulfillment among all humans and ensures the preservation and enrichment of the first three orders of nature. It forms the foundational blueprint for a global family and a universal human order."
-                }
-            ]
-        };
-
-        // Complete 90 Questions Database (30 per module, mapping syllabus and PYQs)
-        const quizDatabase = {
+        // ==================== QUIZ DATABASE WITH RANDOMIZED ANSWERS ====================
+        // Original quiz database template - will be shuffled on load
+        const quizDatabaseTemplate = {
             1: [
                 { q: "What is the basic human aspiration proposed in Universal Human Values?", options: ["Continuous happiness and continuous prosperity", "Accumulation of maximum wealth", "Attaining structural power in society", "Technological elimination of labor"], correct: 0, exp: "All human aspirations are reducible to continuous happiness (sukha) and continuous prosperity (samridhi)." },
-                { q: "Which of the following describes 'Value Education'?", options: ["Financial engineering instruction", "The process of understanding 'what is valuable' and 'how to do' in harmony", "Enforcing traditional family laws", "Memorizing state political rules"], correct: 1, exp: "Value education helps us understand our participation in harmony at all levels of living." },
+                { q: "Which of the following describes 'Value Education'?", options: ["Financial engineering instruction", "The process of understanding 'what to do' and 'how to do' in harmony", "Enforcing traditional family laws", "Memorizing state political rules"], correct: 1, exp: "Value education helps us understand our participation in harmony at all levels of living." },
                 { q: "What is the process of self-exploration?", options: ["Evaluations administered by third-party instructors", "A dialogue between 'what I am' and 'what I really want to be' based on natural acceptance", "Strict suppression of thought patterns", "Analyzing exterior statistical parameters"], correct: 1, exp: "Self-exploration is a self-evolutionary process of discovering natural acceptance through experiential validation." },
                 { q: "Which of the following is considered 'natural acceptance'?", options: ["Beliefs taught by media or authority", "An innate, invariant, and universal inner voice of harmony", "Decisions made under peer pressure", "Refnes to external stimulation"], correct: 1, exp: "Natural acceptance is constant, invariant, and universal across all times, places, and individuals." },
                 { q: "What is 'prosperity' (Samridhi) as defined in UHV?", options: ["Accumulating unlimited materials", "The feeling of having more than required physical facilities", "Possessing high academic degrees", "Expensive sensory experiences"], correct: 1, exp: "Prosperity is the dual state of identifying our physical needs and having more than required." },
@@ -550,30 +548,72 @@
             ]
         };
 
+        // Shuffled quiz database - will be populated on load
+        let quizDatabase = {};
+
         // UI State Machine
-        let currentTab = "quiz"; // 'quiz' is now default opening tab
-        let currentQuizModule = 1;  
+        let currentTab = "quiz";
+        let currentQuizModule = 1;
         let currentQuestionIdx = 0;
         let selectedOptionIdx = null;
         let score = 0;
+        let timerInterval = null;
+        let timeSpent = 0;
+        let questionStartTime = 0;
 
-        // Intro Loading Script Setup (Exactly 5 Seconds)
-        const loadSteps = [
-            "Right Understanding...",
-            "Relationship & Family...",
-            "Physical Facility Limitation...",
-            "Harmony in Nature...",
-            "Submergence in Space..."
-        ];
+        // ==================== ANSWER SHUFFLING FUNCTION ====================
+        // Fisher-Yates shuffle algorithm for randomizing answer positions
+        function shuffleAnswers(questions) {
+            return questions.map(question => {
+                const shuffled = {...question};
+                const indices = [0, 1, 2, 3];
+                
+                // Fisher-Yates shuffle
+                for (let i = indices.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [indices[i], indices[j]] = [indices[j], indices[i]];
+                }
+                
+                const newOptions = indices.map(idx => shuffled.options[idx]);
+                const newCorrectIndex = indices.indexOf(shuffled.correct);
+                
+                return {
+                    ...shuffled,
+                    options: newOptions,
+                    correct: newCorrectIndex
+                };
+            });
+        }
 
+        // Initialize shuffled quiz database
+        function initializeShuffledDatabase() {
+            quizDatabase = {};
+            for (const module in quizDatabaseTemplate) {
+                quizDatabase[module] = shuffleAnswers(quizDatabaseTemplate[module]);
+            }
+            console.log("Quiz answers randomized successfully");
+        }
+
+        // ==================== DOCUMENT READY ====================
         document.addEventListener("DOMContentLoaded", () => {
             lucide.createIcons();
             
+            // Initialize shuffled quiz database
+            initializeShuffledDatabase();
+            
             // Build summary accordion list
             buildSyllabusSummary();
-
-            // Run 5 second loading routine
+            
+            // Run loading routine
             let percent = 0;
+            const loadSteps = [
+                "Right Understanding...",
+                "Relationship & Family...",
+                "Physical Facility Limitation...",
+                "Harmony in Nature...",
+                "Submergence in Space..."
+            ];
+
             const progressInterval = setInterval(() => {
                 percent += 2;
                 document.getElementById("loader-fill").style.width = `${percent}%`;
@@ -593,12 +633,11 @@
                 }
             }, 100);
 
-            // Initialize Default Selected Tabs and load
+            // Initialize Default Selected Tabs
             switchTab(currentTab);
-            loadQuizQuestion();
         });
 
-        // Theme Toggle: Light to Dark (Default: Bright Mode)
+        // ==================== THEME TOGGLE ====================
         function toggleTheme() {
             const body = document.body;
             const themeIcon = document.getElementById("theme-icon");
@@ -614,7 +653,7 @@
             lucide.createIcons();
         }
 
-        // Global Tab Switch Engine
+        // ==================== TAB SWITCHING ====================
         function switchTab(targetTab) {
             currentTab = targetTab;
             
@@ -636,13 +675,98 @@
             }
         }
 
-        // Build Accordion Dropdown Syllabus Items
+        // ==================== ACCORDION ====================
         function buildSyllabusSummary() {
             [1, 2, 3].forEach(modNum => {
                 const targetEl = document.getElementById(`m${modNum}-summary-topics`);
                 targetEl.innerHTML = "";
                 
-                const topics = syllabusDirectory[modNum];
+                // FIX: Increased summary explanation text size for better readability
+                const topics = {
+                    1: [
+                        {
+                            title: "Value Education",
+                            desc: "The critical educational process designed to help individuals discover 'what to do' (values) and 'how to do it' (skills) in universal harmony. Value Education is not a set of moral dogmas, but a rational methodology leading from animal consciousness (Jiv Chetna)—focused solely on the accumulation of physical facilities—to human consciousness (Manav Chetna), facilitating mutual happiness and mutual prosperity across all levels of living."
+                        },
+                        {
+                            title: "Self-Exploration",
+                            desc: "An internal, evolutionary process of self-observation and value-discovery. It acts as a dialogical exploration between 'what I am' (my current behavior and state of being) and 'what I really want to be' (my natural acceptance). Every proposal in this curriculum is not to be accepted on authority but needs verification on one's own right, validating it in actual living and verifying it with natural acceptance."
+                        },
+                        {
+                            title: "Natural Acceptance",
+                            desc: "The innate, universal, and invariant faculty of human consciousness that recognizes harmony and relationship naturally. Unlike conditional acceptance—which is highly variable and depends on external preconditioning, sensory pleasures, or peer pressure—Natural Acceptance remains constant across all human beings, regardless of time, physical location, or cultural backgrounds."
+                        },
+                        {
+                            title: "Continuous Happiness (Sukh)",
+                            desc: "An ongoing qualitative state of internal harmony and equilibrium inside the conscious Self ('I'). Sukh is achieved when there is alignment and no internal contradictions within the desires, thoughts, and expectations of the Self. It stands in stark contrast to sensory excitement, which is temporary, transient, and leads to addiction or eventual physical exhaustion."
+                        },
+                        {
+                            title: "Prosperity (Samridhi)",
+                            desc: "The qualitative feeling of having and producing more than required physical facilities. Prosperity requires a human being to first identify the real quantitative limitations of their material Body, and secondly, to produce or possess an abundance of physical facility. Realizing this limitation prevents the limitless hoarding of materials and eliminates the feeling of deprivation."
+                        },
+                        {
+                            title: "Right Understanding (Samadhan)",
+                            desc: "The fundamental cognitive clarity that enables humans to observe and understand harmony as it naturally exists across all levels of existence (Self, Family, Society, Nature). Right Understanding is the foundational priority in human life; without it, we cannot correctly evaluate human relationships or identify the correct limits of physical facilities."
+                        },
+                        {
+                            title: "Physical Facilities (Suvidha)",
+                            desc: "Physical-chemical resources utilized to nurture, protect, and properly operate the material Body. In the UHV framework, Suvidha is recognized as necessary but incomplete for a human being. While animals are satisfied with physical facilities alone, humans require Right Understanding in the Self and Right Feelings in Relationships alongside Suvidha."
+                        }
+                    ],
+                    2: [
+                        {
+                            title: "Co-existence of Self ('I') & Body",
+                            desc: "The understanding that a human being is a co-existence of two distinct realities: the conscious Self ('I') and the material Body. The Self is qualitative, requiring continuous feelings of trust, respect, and peace; the Body is material and quantitative, needing temporary physico-chemical facilities. Confusing these two realities leads to trying to satisfy qualitative needs with physical facilities, which is impossible."
+                        },
+                        {
+                            title: "Trust (Vishwas)",
+                            desc: "The foundational value in relationships, defined as the unconditional clarity and assurance that the other person naturally wants my happiness and prosperity. Conflict and anger arise when we doubt the other's intention (which is always naturally for our well-being) because we are evaluating and reacting to their lack of competence (their external behaviors and mistakes)."
+                        },
+                        {
+                            title: "Respect (Samman) as Right Evaluation",
+                            desc: "Respect means 'Right Evaluation'—observing and accepting the other exactly as they are. Disrespect occurs when we deviate from this: Over-evaluation (Adhi-mulyan, judging someone above reality), Under-evaluation (Ava-mulyan, evaluating someone below reality), or Otherwise-evaluation (Amulyan, judging someone on non-essential factors like caste, gender, body, or wealth)."
+                        },
+                        {
+                            title: "Justice (Nyaya) in Relationships",
+                            desc: "Justice is the recognition, fulfillment, and right evaluation of values in human-to-human relationships. When values like Trust, Respect, and Affection are correctly observed and fulfilled, it leads to mutual happiness (Ubhay-tripti). This mutual fulfillment is the structural building block for social harmony and the elimination of exploitation."
+                        },
+                        {
+                            title: "Love (Prem) as the Complete Value",
+                            desc: "Love is the complete value (Sampurna Mulya) in human relationships, representing the feeling of unconditional relatedness to all units in existence. It starts within the family circle, extends systematically to the village, state, and ultimately manifests as a universal human family, allowing one to live in complete harmony without feelings of opposition."
+                        },
+                        {
+                            title: "Care and Guidance",
+                            desc: "Care is the internal feeling of responsibility to nurture and protect the physical-chemical operations of the Body. Guidance is the corresponding conscious responsibility of the Self to support and facilitate Right Understanding and value education within the Self ('I') of another human being, ensuring mutual growth."
+                        },
+                        {
+                            title: "Universal Human Order (Sarvabhaum Vyavastha)",
+                            desc: "The systemic global organization of humanity structured directly from family order to the world family. It is realized through the fulfillment of the five dimensions of human systems (Education, Health, Production, Justice, and Exchange) which satisfy societal goals: Samadhan (Right Understanding), Samridhi (Prosperity), Abhay (Trust), and Sah-astitva (Co-existence)."
+                        }
+                    ],
+                    3: [
+                        {
+                            title: "The Four Orders of Nature",
+                            desc: "The natural world consists of four distinct levels: Physical (material elements, soil), Pranic (plants, bio-life), Animal, and Human. The first three orders naturally co-exist in mutual fulfillment, nurturing each other. The Human order possesses potential for right understanding, but currently acts in exploitation of the other three orders due to a lack of values."
+                        },
+                        {
+                            title: "Existence as Co-existence (Sah-astitva)",
+                            desc: "The deep realization that existence is co-existence, wherein all bounded, active units (material and conscious) are submerged in the all-pervading, inactive, and transparent Space. Every unit is self-organized, energized, and naturally participates in relationships of mutual fulfillment, order, and co-existence with all other units."
+                        },
+                        {
+                            title: "Self-Regulation (Sanyam) & Health (Swasthya)",
+                            desc: "Sanyam is the feeling of responsibility in the conscious Self for the systematic nurturing, protection, and right utilization of the physical Body. Swasthya is the physical equilibrium of the body itself, characterized by organs working in harmony, and the body being ready to act as a proper instrument of the Self."
+                        },
+                        {
+                            title: "Professional Ethics",
+                            desc: "The ethical conduct of a professional that is conducive to the universal human order. It reflects the capability of a professional to make decisions that enrich human relationships and preserve nature. It marks a transition from a world-view of animal consciousness (exploitation) to human consciousness (mutual preservation)."
+                        },
+                        {
+                            title: "Humanistic Constitution",
+                            desc: "The structural, legal, and social framework of a society that guarantees mutual fulfillment among all humans and ensures the preservation and enrichment of the first three orders of nature. It forms the foundational blueprint for a global family and a universal human order."
+                        }
+                    ]
+                }[modNum];
+
                 topics.forEach((topic, idx) => {
                     const accordionContainer = document.createElement("div");
                     accordionContainer.className = "themed-card rounded-2xl overflow-hidden transition-all duration-300";
@@ -661,8 +785,9 @@
                     const descContainer = document.createElement("div");
                     descContainer.id = `acc-content-${modNum}-${idx}`;
                     descContainer.className = "accordion-content border-t border-slate-200 dark:border-white/5 bg-slate-900/[0.01] dark:bg-black/20";
+                    // FIX: Increased text size and improved readability
                     descContainer.innerHTML = `
-                        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed p-4 font-medium">${topic.desc}</p>
+                        <p class="summary-explanation text-slate-700 dark:text-slate-300 leading-relaxed p-4">${topic.desc}</p>
                     `;
 
                     accordionContainer.appendChild(btn);
@@ -701,12 +826,19 @@
             }
         }
 
+        // ==================== QUIZ SYSTEM ====================
+        
         // Select active quiz module
         function selectQuizModule(moduleNum) {
             currentQuizModule = moduleNum;
             currentQuestionIdx = 0;
             score = 0;
             selectedOptionIdx = null;
+            timeSpent = 0;
+            
+            // Clear any existing timer
+            clearInterval(timerInterval);
+            document.getElementById("question-timer").innerText = "00:00";
 
             // Update sub-tab button styles
             [1, 2, 3].forEach(num => {
@@ -718,10 +850,27 @@
                 }
             });
 
-            // Adjust Active Panels
-            document.getElementById("quiz-active-view").classList.remove("hidden");
+            // Show start view
             document.getElementById("quiz-results-view").classList.add("hidden");
+            document.getElementById("quiz-questions-view").classList.add("hidden");
+            document.getElementById("quiz-start-view").classList.remove("hidden");
+            
+            // Update start module number
+            document.getElementById("start-module-num").innerText = moduleNum;
+        }
 
+        // NEW: Start quiz timer - Timer begins ONLY after clicking Start Quiz
+        function startQuizTimer() {
+            document.getElementById("quiz-start-view").classList.add("hidden");
+            document.getElementById("quiz-questions-view").classList.remove("hidden");
+            
+            currentQuestionIdx = 0;
+            score = 0;
+            selectedOptionIdx = null;
+            timeSpent = 0;
+            
+            // Start timer
+            startQuestionTimer();
             loadQuizQuestion();
         }
 
@@ -736,7 +885,7 @@
             document.getElementById("next-btn").classList.add("hidden");
 
             // Update badge text
-            document.getElementById("quiz-module-badge").innerText = `Module ${currentQuizModule} Assessment`;
+            document.getElementById("quiz-module-badge").innerText = `Module ${currentQuizModule} Evaluation`;
             document.getElementById("current-q-num").innerText = currentQuestionIdx + 1;
             document.getElementById("total-q-num").innerText = currentQuestions.length;
 
@@ -763,9 +912,25 @@
                 `;
                 optionsGrid.appendChild(button);
             });
+            
+            // Reset question timer
+            startQuestionTimer();
         }
 
-        // Process user option choice
+        // Start question timer
+        function startQuestionTimer() {
+            clearInterval(timerInterval);
+            questionStartTime = Date.now();
+            
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById("question-timer").innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // IMPROVED: Process user option choice with proper color feedback
         function selectQuizOption(idx) {
             if (selectedOptionIdx !== null) return; // Prevent double choosing
 
@@ -777,20 +942,27 @@
             const isCorrect = (idx === qData.correct);
             if (isCorrect) score++;
 
-            // Highlight chosen item colors
+            // Stop timer and accumulate time
+            clearInterval(timerInterval);
+            const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+            timeSpent += elapsed;
+
+            // IMPROVED: Color feedback for all options
             for (let i = 0; i < buttons.length; i++) {
                 const btn = buttons[i];
-                btn.onclick = null; // Remove standard clicks
-                const labelSpan = btn.querySelector('span');
+                btn.onclick = null; // Disable further clicking
+                const labelSpan = btn.querySelector('span:first-child');
+                const textSpan = btn.querySelector('span:last-child');
 
                 if (i === qData.correct) {
-                    btn.className = "text-left p-5 rounded-2xl border-2 border-emerald-500 bg-emerald-500/10 font-bold text-xs text-slate-800 dark:text-white flex gap-4 items-start";
-                    labelSpan.className = "w-6 h-6 rounded-lg bg-emerald-500 flex items-center justify-center text-xs text-white font-bold shrink-0";
+                    // Correct answer - always GREEN
+                    btn.className = "text-left p-5 rounded-2xl border-2 border-emerald-500 bg-emerald-500/10 font-bold text-xs flex gap-4 items-start transition-all duration-300 answer-correct";
                 } else if (i === idx) {
-                    btn.className = "text-left p-5 rounded-2xl border-2 border-rose-500 bg-rose-500/10 font-bold text-xs text-slate-800 dark:text-white flex gap-4 items-start";
-                    labelSpan.className = "w-6 h-6 rounded-lg bg-rose-500 flex items-center justify-center text-xs text-white font-bold shrink-0";
+                    // Selected answer - RED if wrong
+                    btn.className = "text-left p-5 rounded-2xl border-2 border-rose-500 bg-rose-500/10 font-bold text-xs flex gap-4 items-start transition-all duration-300 answer-incorrect";
                 } else {
-                    btn.className = "text-left p-5 rounded-2xl border border-slate-200 dark:border-white/5 opacity-40 font-bold text-xs text-slate-500 dark:text-slate-400 flex gap-4 items-start";
+                    // Other options - disabled state
+                    btn.className = "text-left p-5 rounded-2xl border border-slate-200 dark:border-white/5 opacity-40 font-bold text-xs flex gap-4 items-start answer-disabled";
                 }
             }
 
@@ -819,9 +991,8 @@
 
             // Next Question or Summary Button toggle
             const nextBtn = document.getElementById("next-btn");
-            const nextSpan = nextBtn.querySelector("span");
             const isLast = (currentQuestionIdx === quizDatabase[currentQuizModule].length - 1);
-            // FIX: Ensure this button strictly says "Answer" when continuing to next item
+            const nextSpan = nextBtn.querySelector("span");
             nextSpan.innerText = isLast ? "View Module Summary" : "Next Answer";
             nextBtn.classList.remove("hidden");
         }
@@ -840,7 +1011,7 @@
         // Generate module end summary
         function showQuizSummary() {
             const currentQuestions = quizDatabase[currentQuizModule];
-            document.getElementById("quiz-active-view").classList.add("hidden");
+            document.getElementById("quiz-questions-view").classList.add("hidden");
             const summaryView = document.getElementById("quiz-results-view");
             summaryView.classList.remove("hidden");
 
@@ -862,6 +1033,10 @@
             } else {
                 nextModBtn.classList.add("hidden");
             }
+            
+            // Clear timer
+            clearInterval(timerInterval);
+            
             lucide.createIcons();
         }
 
